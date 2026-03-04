@@ -1,8 +1,27 @@
-'use client'
+﻿'use client'
 import { useAgentStore } from '@/store/useAgentStore'
-import { downloadReport } from '@/lib/report'
-import { X, Download, ChevronLeft, FileText, Clock } from 'lucide-react'
-import { markdownToHtml } from '@/lib/report'
+import { downloadReport, markdownToHtml } from '@/lib/report'
+import { Download, ChevronLeft, FileText, Clock, GitBranch, Zap } from 'lucide-react'
+import { AGENT_COLORS } from '@/lib/agents'
+import { AgentId } from '@/types'
+
+const REPORT_THEME: Record<string, { accent: string; label: string; icon: React.ReactNode }> = {
+    mission_result: {
+        accent: '#ffd700',
+        label: 'MISSION REPORT',
+        icon: <FileText size={14} style={{ color: '#ffd700' }} />,
+    },
+    github_review: {
+        accent: '#4aff8f',
+        label: 'CODE REVIEW',
+        icon: <GitBranch size={14} style={{ color: '#4aff8f' }} />,
+    },
+    superpower: {
+        accent: '#ff8800',
+        label: 'SUPER POWER',
+        icon: <Zap size={14} style={{ color: '#ff8800' }} />,
+    },
+}
 
 export function ReportDocument() {
     const { reports, activeReportId, setActiveReport } = useAgentStore()
@@ -10,24 +29,17 @@ export function ReportDocument() {
 
     if (!report) return null
 
-    const AGENT_COLORS: Record<string, string> = {
-        rex: '#4a8fff', nova: '#b44aff', sage: '#4aff8f', byte: '#ff4a4a', flora: '#ff8fcc'
-    }
+    const theme = REPORT_THEME[report.type] ?? REPORT_THEME.mission_result
 
     return (
-        <div
-            className="report-doc flex flex-col h-full"
-            style={{ background: '#080810' }}
-        >
-            {/* Document header — styled like Claude's artifact */}
-            <div
-                style={{
-                    background: '#0d0d1a',
-                    borderBottom: '1px solid #2a2a4a',
-                    padding: '10px 12px',
-                    flexShrink: 0,
-                }}
-            >
+        <div className="report-doc flex flex-col h-full" style={{ background: '#080810' }}>
+            {/* Document header */}
+            <div style={{
+                background: '#0d0d1a',
+                borderBottom: `2px solid ${theme.accent}44`,
+                padding: '10px 12px',
+                flexShrink: 0,
+            }}>
                 {/* Back button */}
                 <button
                     onClick={() => setActiveReport(null)}
@@ -48,15 +60,36 @@ export function ReportDocument() {
                     BACK TO FEED
                 </button>
 
+                {/* Report type badge */}
+                <div style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 4,
+                    background: `${theme.accent}18`,
+                    border: `1px solid ${theme.accent}55`,
+                    padding: '2px 6px',
+                    marginBottom: 8,
+                }}>
+                    <div style={{ width: 6, height: 6, background: theme.accent }} />
+                    <span style={{
+                        fontFamily: 'var(--font-pixel)',
+                        fontSize: '6px',
+                        color: theme.accent,
+                        letterSpacing: 1,
+                    }}>
+                        {theme.label}
+                    </span>
+                </div>
+
                 {/* Document title */}
                 <div className="flex items-start gap-2">
                     <div style={{
                         width: 28, height: 28, flexShrink: 0,
-                        background: '#1a1a3a',
-                        border: '1px solid #3a3a6a',
+                        background: `${theme.accent}18`,
+                        border: `1px solid ${theme.accent}44`,
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                     }}>
-                        <FileText size={14} style={{ color: '#8888ff' }} />
+                        {theme.icon}
                     </div>
                     <div className="flex-1 min-w-0">
                         <div style={{
@@ -80,42 +113,41 @@ export function ReportDocument() {
                 {/* Agent avatars */}
                 <div className="flex items-center gap-1 mt-2">
                     <span style={{ fontFamily: 'var(--font-pixel)', fontSize: '6px', color: '#444466' }}>BY</span>
-                    {report.agentIds.map((id: string) => (
-                        <div
-                            key={id}
-                            style={{
+                    {report.agentIds.map((id: string) => {
+                        const c = AGENT_COLORS[id as AgentId] ?? '#8888aa'
+                        return (
+                            <div key={id} style={{
                                 width: 14, height: 14,
-                                background: AGENT_COLORS[id] + '22',
-                                border: `1px solid ${AGENT_COLORS[id]}`,
+                                background: c + '22',
+                                border: `1px solid ${c}`,
                                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            }}
-                            title={id.toUpperCase()}
-                        >
-                            <div style={{ width: 6, height: 6, background: AGENT_COLORS[id], borderRadius: '50%' }} />
-                        </div>
-                    ))}
+                            }} title={id.toUpperCase()}>
+                                <div style={{ width: 6, height: 6, background: c, borderRadius: '50%' }} />
+                            </div>
+                        )
+                    })}
                 </div>
 
                 {/* Download button */}
                 <button
                     onClick={() => downloadReport(report)}
-                    className="flex items-center gap-1 mt-2 px-3 py-1.5 transition-all"
+                    className="flex items-center gap-1 mt-2 px-3 py-1.5"
                     style={{
                         background: '#1a1a3a',
-                        border: '2px solid #3a3a6a',
-                        color: '#8888ff',
+                        border: `2px solid ${theme.accent}44`,
+                        color: theme.accent,
                         fontFamily: 'var(--font-pixel)',
                         fontSize: '6px',
                         cursor: 'pointer',
                         boxShadow: '2px 2px 0 #000',
                     }}
                     onMouseEnter={e => {
-                        e.currentTarget.style.borderColor = '#ffd700'
-                        e.currentTarget.style.color = '#ffd700'
+                        e.currentTarget.style.borderColor = theme.accent
+                        e.currentTarget.style.background = `${theme.accent}18`
                     }}
                     onMouseLeave={e => {
-                        e.currentTarget.style.borderColor = '#3a3a6a'
-                        e.currentTarget.style.color = '#8888ff'
+                        e.currentTarget.style.borderColor = `${theme.accent}44`
+                        e.currentTarget.style.background = '#1a1a3a'
                     }}
                 >
                     <Download size={10} />
@@ -130,41 +162,50 @@ export function ReportDocument() {
                 dangerouslySetInnerHTML={{ __html: markdownToHtml(report.content) }}
             />
 
-            {/* Report list (if multiple reports) */}
+            {/* Other reports list — scrollable, no hard cap */}
             {reports.length > 1 && (
                 <div style={{
                     borderTop: '1px solid #1a1a3a',
                     padding: '8px',
                     background: '#0a0a15',
                     flexShrink: 0,
+                    maxHeight: 120,
+                    overflowY: 'auto',
                 }}>
                     <div style={{ fontFamily: 'var(--font-pixel)', fontSize: '6px', color: '#444466', marginBottom: 4 }}>
-                        OTHER REPORTS
+                        OTHER REPORTS ({reports.length - 1})
                     </div>
                     <div className="flex flex-col gap-1">
-                        {reports.filter(r => r.id !== activeReportId).slice(0, 3).map(r => (
-                            <button
-                                key={r.id}
-                                onClick={() => setActiveReport(r.id)}
-                                style={{
-                                    background: 'none',
-                                    border: '1px solid #1a1a3a',
-                                    color: '#6666aa',
-                                    fontFamily: 'var(--font-terminal)',
-                                    fontSize: '11px',
-                                    padding: '3px 6px',
-                                    cursor: 'pointer',
-                                    textAlign: 'left',
-                                    overflow: 'hidden',
-                                    textOverflow: 'ellipsis',
-                                    whiteSpace: 'nowrap',
-                                }}
-                                onMouseEnter={e => e.currentTarget.style.borderColor = '#4a4a8a'}
-                                onMouseLeave={e => e.currentTarget.style.borderColor = '#1a1a3a'}
-                            >
-                                {r.title}
-                            </button>
-                        ))}
+                        {reports.filter(r => r.id !== activeReportId).map(r => {
+                            const t = REPORT_THEME[r.type] ?? REPORT_THEME.mission_result
+                            return (
+                                <button
+                                    key={r.id}
+                                    onClick={() => setActiveReport(r.id)}
+                                    style={{
+                                        background: 'none',
+                                        border: `1px solid ${t.accent}33`,
+                                        color: '#6666aa',
+                                        fontFamily: 'var(--font-terminal)',
+                                        fontSize: '11px',
+                                        padding: '3px 6px',
+                                        cursor: 'pointer',
+                                        textAlign: 'left',
+                                        overflow: 'hidden',
+                                        textOverflow: 'ellipsis',
+                                        whiteSpace: 'nowrap',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: 6,
+                                    }}
+                                    onMouseEnter={e => e.currentTarget.style.borderColor = t.accent}
+                                    onMouseLeave={e => e.currentTarget.style.borderColor = `${t.accent}33`}
+                                >
+                                    <div style={{ width: 4, height: 4, background: t.accent, flexShrink: 0 }} />
+                                    {r.title}
+                                </button>
+                            )
+                        })}
                     </div>
                 </div>
             )}

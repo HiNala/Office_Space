@@ -1,12 +1,13 @@
-'use client'
+﻿'use client'
 import { useAgentStore } from '@/store/useAgentStore'
 import { runMission, runGithubReview } from '@/lib/gemini'
 import { useState, KeyboardEvent } from 'react'
-import { Zap } from 'lucide-react'
+import { X } from 'lucide-react'
 
 export function MissionInput() {
-  const { geminiApiKey, isRunning, githubUrl, setGithubUrl } = useAgentStore()
+  const { geminiApiKey, isRunning, setIsRunning } = useAgentStore()
   const [input, setInput] = useState('')
+  const [githubUrl, setGithubUrl] = useState('')
   const [mode, setMode] = useState<'mission' | 'github'>('mission')
   const [reviewType, setReviewType] = useState('Full code review — architecture, security, and UX')
 
@@ -18,8 +19,13 @@ export function MissionInput() {
   }
 
   const handleGithubReview = async () => {
-    if (!githubUrl.trim() || !geminiApiKey || isRunning) return
-    await runGithubReview(githubUrl, reviewType, geminiApiKey)
+    const url = githubUrl.trim()
+    if (!url || !geminiApiKey || isRunning || !githubIsValid) return
+    await runGithubReview(url, reviewType, geminiApiKey)
+  }
+
+  const handleCancel = () => {
+    setIsRunning(false)
   }
 
   const handleKey = (e: KeyboardEvent) => {
@@ -37,15 +43,11 @@ export function MissionInput() {
     'Security threat model for a SaaS',
   ]
 
+  const githubIsValid = /^https?:\/\/github\.com\/[\w.-]+\/[\w.-]/.test(githubUrl.trim())
+
   return (
-    <div
-      style={{
-        background: '#080812',
-        borderTop: '2px solid #1a1a3a',
-        padding: '12px 16px',
-      }}
-    >
-      {/* Mode tabs */}
+    <div style={{ background: '#080812', borderTop: '2px solid #1a1a3a', padding: '12px 16px' }}>
+      {/* Mode tabs + status */}
       <div className="flex gap-2 mb-2 items-center">
         <button
           onClick={() => setMode('mission')}
@@ -58,7 +60,7 @@ export function MissionInput() {
             background: mode === 'mission' ? 'rgba(255,215,0,0.06)' : 'transparent',
           }}
         >
-          🎯 MISSION
+          MISSION
         </button>
         <button
           onClick={() => setMode('github')}
@@ -66,25 +68,36 @@ export function MissionInput() {
           style={{
             fontSize: '7px',
             padding: '4px 10px',
-            borderColor: mode === 'github' ? '#ffd700' : '#2a2a5a',
-            color: mode === 'github' ? '#ffd700' : '#888',
-            background: mode === 'github' ? 'rgba(255,215,0,0.06)' : 'transparent',
+            borderColor: mode === 'github' ? '#4a8fff' : '#2a2a5a',
+            color: mode === 'github' ? '#4a8fff' : '#888',
+            background: mode === 'github' ? 'rgba(74,143,255,0.06)' : 'transparent',
           }}
         >
-          🐙 GITHUB REVIEW
+          GITHUB REVIEW
         </button>
 
         {isRunning && (
-          <div
-            className="ml-auto flex items-center gap-1"
-            style={{
-              fontSize: '7px',
-              fontFamily: 'var(--font-pixel)',
-              color: '#ffd700',
-              animation: 'pixel-pulse 0.8s infinite',
-            }}
-          >
-            ◆ TEAM IS WORKING...
+          <div className="ml-auto flex items-center gap-2">
+            <span style={{ fontSize: '7px', fontFamily: 'var(--font-pixel)', color: '#ffd700', animation: 'pixel-pulse 0.8s infinite' }}>
+              WORKING...
+            </span>
+            <button
+              onClick={handleCancel}
+              title="Cancel mission"
+              className="flex items-center gap-1"
+              style={{
+                background: 'rgba(255,68,68,0.1)',
+                border: '1px solid #ff4444',
+                color: '#ff4444',
+                fontFamily: 'var(--font-pixel)',
+                fontSize: '6px',
+                padding: '2px 6px',
+                cursor: 'pointer',
+              }}
+            >
+              <X size={8} />
+              CANCEL
+            </button>
           </div>
         )}
       </div>
@@ -96,9 +109,7 @@ export function MissionInput() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKey}
-              placeholder={
-                geminiApiKey ? 'Give the team a mission...' : 'Enter your Gemini API key first ↑'
-              }
+              placeholder={geminiApiKey ? 'Give the team a mission...' : 'Enter your Gemini API key first'}
               disabled={isRunning || !geminiApiKey}
               className="flex-1 outline-none"
               style={{
@@ -115,24 +126,19 @@ export function MissionInput() {
               onClick={handleSubmit}
               disabled={!input.trim() || !geminiApiKey || isRunning}
               className="pixel-btn pixel-btn-green flex items-center gap-1"
-              style={{
-                fontSize: '7px',
-                height: 40,
-                opacity: !input.trim() || !geminiApiKey || isRunning ? 0.45 : 1,
-              }}
+              style={{ fontSize: '7px', height: 40, opacity: !input.trim() || !geminiApiKey || isRunning ? 0.45 : 1 }}
             >
-              ▶ SEND
+              SEND
             </button>
           </div>
 
-          {/* Quick mission presets */}
           {!isRunning && (
             <div className="flex gap-1 mt-2 flex-wrap">
               {MISSION_PRESETS.map((preset) => (
                 <button
                   key={preset}
                   onClick={() => setInput(preset)}
-                  className="px-2 py-0.5 transition-colors"
+                  className="px-2 py-0.5"
                   style={{
                     background: 'transparent',
                     border: '1px solid #2a2a4a',
@@ -141,14 +147,8 @@ export function MissionInput() {
                     fontSize: '11px',
                     cursor: 'pointer',
                   }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.borderColor = '#4a4a8a'
-                    e.currentTarget.style.color = '#aaaacc'
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.borderColor = '#2a2a4a'
-                    e.currentTarget.style.color = '#6666aa'
-                  }}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor = '#4a4a8a'; e.currentTarget.style.color = '#aaaacc' }}
+                  onMouseLeave={e => { e.currentTarget.style.borderColor = '#2a2a4a'; e.currentTarget.style.color = '#6666aa' }}
                 >
                   {preset}
                 </button>
@@ -157,88 +157,54 @@ export function MissionInput() {
           )}
         </>
       ) : (
-        <div className="flex flex-col gap-3 mt-1">
-          <div className="flex gap-2 relative group">
-            <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-              <span style={{ fontFamily: 'var(--font-pixel)', fontSize: '8px', color: '#666688' }}>github.com/</span>
-            </div>
+        <div className="flex flex-col gap-2">
+          <div className="flex gap-2">
             <input
-              value={githubUrl.replace(/^https?:\/\/github\.com\//, '')}
-              onChange={(e) => setGithubUrl('https://github.com/' + e.target.value)}
+              value={githubUrl}
+              onChange={(e) => setGithubUrl(e.target.value)}
               onKeyDown={handleKey}
-              placeholder="owner/repo"
+              placeholder="https://github.com/owner/repo"
               disabled={isRunning || !geminiApiKey}
               className="flex-1 outline-none"
               style={{
-                background: 'rgba(0, 0, 0, 0.3)',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
-                borderRadius: '4px',
-                color: '#f2f2f7',
+                background: '#0d0d1a',
+                border: `2px solid ${githubUrl && !githubIsValid ? '#ff4444' : '#2a2a5a'}`,
+                color: '#ccccee',
                 fontFamily: 'var(--font-terminal)',
-                fontSize: '14px',
-                padding: '8px 12px 8px 80px',
-                height: 40,
-                transition: 'border-color 0.2s',
+                fontSize: '13px',
+                padding: '8px 12px',
+                height: 36,
               }}
-              onFocus={(e) => (e.target.style.borderColor = 'rgba(10, 132, 255, 0.5)')}
-              onBlur={(e) => (e.target.style.borderColor = 'rgba(255, 255, 255, 0.1)')}
             />
             <button
               onClick={handleGithubReview}
-              disabled={!githubUrl.trim() || !geminiApiKey || isRunning}
+              disabled={!githubIsValid || !geminiApiKey || isRunning}
               className="pixel-btn flex items-center gap-1"
-              style={{
-                fontSize: '7px', height: 40,
-                borderColor: 'rgba(10, 132, 255, 0.5)',
-                color: '#5ac8fa',
-                background: 'rgba(10, 132, 255, 0.1)',
-                opacity: !githubUrl.trim() || !geminiApiKey || isRunning ? 0.45 : 1,
-              }}
+              style={{ fontSize: '7px', height: 36, borderColor: '#4a8fff', color: '#4a8fff', opacity: !githubIsValid || !geminiApiKey || isRunning ? 0.45 : 1 }}
             >
-              <Zap size={10} />
               REVIEW
             </button>
           </div>
-
-          {/* Pills for Review Focus */}
-          <div className="flex flex-wrap gap-2 items-center">
-            <span style={{ fontSize: '7px', fontFamily: 'var(--font-pixel)', color: '#666688', marginRight: 4 }}>STYLE:</span>
-            {['Architecture', 'Security', 'Code Quality & UX', 'Full Audit'].map((pill) => {
-              const isActive = reviewType.includes(pill) || (pill === 'Full Audit' && reviewType.includes('Full'));
-              return (
-                <button
-                  key={pill}
-                  onClick={() => setReviewType(pill === 'Full Audit' ? 'Full code review — architecture, security, and UX' : `${pill} focus`)}
-                  style={{
-                    background: isActive ? 'rgba(52, 199, 89, 0.15)' : 'rgba(255, 255, 255, 0.05)',
-                    border: `1px solid ${isActive ? 'rgba(52, 199, 89, 0.4)' : 'rgba(255, 255, 255, 0.1)'}`,
-                    color: isActive ? '#34c759' : '#8888aa',
-                    borderRadius: '4px',
-                    padding: '4px 10px',
-                    fontSize: '11px',
-                    fontFamily: 'var(--font-terminal)',
-                    cursor: isRunning ? 'default' : 'pointer',
-                    transition: 'all 0.2s',
-                    pointerEvents: isRunning ? 'none' : 'auto',
-                  }}
-                  onMouseEnter={e => {
-                    if (!isActive) {
-                      e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
-                      e.currentTarget.style.color = '#ccccee';
-                    }
-                  }}
-                  onMouseLeave={e => {
-                    if (!isActive) {
-                      e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
-                      e.currentTarget.style.color = '#8888aa';
-                    }
-                  }}
-                >
-                  {pill}
-                </button>
-              );
-            })}
-          </div>
+          <input
+            value={reviewType}
+            onChange={(e) => setReviewType(e.target.value)}
+            placeholder="Review focus (e.g. security audit, UX review...)"
+            className="outline-none"
+            style={{
+              background: '#0d0d1a',
+              border: '1px solid #1a1a3a',
+              color: '#8888aa',
+              fontFamily: 'var(--font-terminal)',
+              fontSize: '12px',
+              padding: '4px 10px',
+              height: 28,
+            }}
+          />
+          {githubUrl && !githubIsValid && (
+            <div style={{ fontFamily: 'var(--font-pixel)', fontSize: '6px', color: '#ff4444' }}>
+              Enter a valid URL: https://github.com/owner/repo
+            </div>
+          )}
         </div>
       )}
     </div>

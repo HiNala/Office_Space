@@ -1,47 +1,36 @@
-'use client'
+﻿'use client'
 import { useAgentStore } from '@/store/useAgentStore'
-import { FeedItem, AgentId } from '@/types'
+import { FeedItem } from '@/types'
 import { ChevronDown, ChevronRight, ExternalLink, Search, MessageSquare, Zap, AlertTriangle, FileText, Activity } from 'lucide-react'
 import { useState, useRef, useEffect } from 'react'
+import { AGENT_COLORS as BASE_AGENT_COLORS } from '@/lib/agents'
 
-const AGENT_COLORS: Record<string, string> = {
-    rex: '#4a8fff',
-    nova: '#b44aff',
-    sage: '#4aff8f',
-    byte: '#ff4a4a',
-    flora: '#ff8fcc',
-    system: '#ffd700',
-}
+const AGENT_COLORS: Record<string, string> = { ...BASE_AGENT_COLORS, system: '#ffd700' }
 
 const AGENT_ICONS: Record<string, string> = {
-    rex: '🏗',
-    nova: '🔭',
-    sage: '👁',
-    byte: '🔒',
-    flora: '🌸',
-    system: '⚙',
+    rex: 'R', nova: 'N', sage: 'S', byte: 'B', flora: 'F', system: '*',
 }
 
-const TYPE_ICONS = {
-    search: <Search size={10} />,
-    reasoning: <Activity size={10} />,
-    chat: <MessageSquare size={10} />,
-    action: <Zap size={10} />,
-    result: <ChevronRight size={10} />,
-    report: <FileText size={10} />,
+const TYPE_ICONS: Record<string, React.ReactNode> = {
+    search:     <Search size={10} />,
+    reasoning:  <Activity size={10} />,
+    chat:       <MessageSquare size={10} />,
+    action:     <Zap size={10} />,
+    result:     <ChevronRight size={10} />,
+    report:     <FileText size={10} />,
     superpower: <Zap size={10} />,
-    error: <AlertTriangle size={10} />,
+    error:      <AlertTriangle size={10} />,
 }
 
-const TYPE_COLORS = {
-    search: '#b44aff',
-    reasoning: '#888888',
-    chat: '#ccccee',
-    action: '#ffd700',
-    result: '#4aff8f',
-    report: '#ffd700',
+const TYPE_COLORS: Record<string, string> = {
+    search:     '#b44aff',
+    reasoning:  '#888888',
+    chat:       '#ccccee',
+    action:     '#ffd700',
+    result:     '#4aff8f',
+    report:     '#ffd700',
     superpower: '#ff8800',
-    error: '#ff4444',
+    error:      '#ff4444',
 }
 
 interface FeedItemRowProps {
@@ -50,21 +39,24 @@ interface FeedItemRowProps {
 
 function FeedItemRow({ item }: FeedItemRowProps) {
     const { toggleFeedItemExpanded, setActiveReport, reports } = useAgentStore()
-    const color = AGENT_COLORS[item.agentId] || AGENT_COLORS.system
-    const typeColor = TYPE_COLORS[item.type]
-    const icon = AGENT_ICONS[item.agentId] || '⚙'
+    const color = AGENT_COLORS[item.agentId] ?? AGENT_COLORS.system
+    const typeColor = TYPE_COLORS[item.type] ?? '#888888'
+    const icon = AGENT_ICONS[item.agentId] ?? '*'
 
     const handleClick = () => {
         if (item.type === 'report') {
-            const latest = reports[0]
-            if (latest) setActiveReport(latest.id)
+            // Open the exact report this feed item references
+            const target = item.reportId
+                ? reports.find((r) => r.id === item.reportId)
+                : reports[0]
+            if (target) setActiveReport(target.id)
         } else if (item.detail) {
             toggleFeedItemExpanded(item.id)
         }
     }
 
     const time = item.timestamp.toLocaleTimeString('en-US', {
-        hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
+        hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false,
     })
 
     return (
@@ -79,66 +71,80 @@ function FeedItemRow({ item }: FeedItemRowProps) {
                 transition: 'background 0.1s',
             }}
         >
-            {/* Main row */}
             <div className="flex items-start gap-2">
-                {/* Agent icon */}
-                <span style={{ fontSize: '12px', flexShrink: 0, marginTop: 1 }}>{icon}</span>
+                {/* Agent badge */}
+                <div style={{
+                    flexShrink: 0,
+                    width: 16, height: 16,
+                    background: `${color}22`,
+                    border: `1px solid ${color}66`,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontFamily: 'var(--font-pixel)',
+                    fontSize: '7px',
+                    color,
+                }}>
+                    {icon}
+                </div>
 
-                {/* Type icon + message */}
+                {/* Content */}
                 <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-1 flex-wrap">
-                        <span style={{ color: typeColor, flexShrink: 0, display: 'flex', alignItems: 'center' }}>
+                    <div className="flex items-center gap-1 mb-0.5">
+                        <span style={{ color: typeColor, flexShrink: 0 }}>
                             {TYPE_ICONS[item.type]}
                         </span>
-                        <span
-                            style={{
-                                fontFamily: 'var(--font-terminal)',
-                                fontSize: '12px',
-                                color: item.type === 'report' ? '#ffd700' : item.type === 'error' ? '#ff4444' : '#ccccee',
-                                lineHeight: 1.4,
-                                wordBreak: 'break-word',
-                            }}
-                        >
+                        <span style={{
+                            fontFamily: 'var(--font-terminal)',
+                            fontSize: '11px',
+                            color: '#ccccee',
+                            lineHeight: 1.4,
+                        }}>
                             {item.message}
                         </span>
                         {item.type === 'report' && (
-                            <span style={{ fontSize: '10px', color: '#ffd700', animation: 'pixel-pulse 1s infinite', flexShrink: 0 }}>
-                                ← OPEN
-                            </span>
+                            <span style={{ fontSize: '9px', color: '#ffd700', flexShrink: 0 }}>← OPEN</span>
                         )}
                     </div>
-
-                    {/* Timestamp */}
-                    <div style={{ fontFamily: 'var(--font-terminal)', fontSize: '10px', color: '#444466', marginTop: 1 }}>
+                    <div style={{ fontFamily: 'var(--font-terminal)', fontSize: '10px', color: '#444466' }}>
                         {time}
-                        {item.detail && !item.isExpanded && (
-                            <span style={{ color: '#4a4a6a', marginLeft: 6 }}>
-                                {item.isExpanded ? '▲ collapse' : '▼ details'}
-                            </span>
-                        )}
                     </div>
                 </div>
+
+                {/* Expand/collapse for items with detail */}
+                {item.detail && item.type !== 'report' && (
+                    <div style={{ color: '#444466', flexShrink: 0 }}>
+                        {item.isExpanded ? <ChevronDown size={10} /> : <ChevronRight size={10} />}
+                    </div>
+                )}
             </div>
 
             {/* Expanded detail */}
             {item.isExpanded && item.detail && (
-                <div
-                    style={{
-                        marginTop: 6,
-                        marginLeft: 22,
-                        padding: '8px',
-                        background: '#0a0a1a',
-                        border: '1px solid #2a2a4a',
-                        fontFamily: 'var(--font-terminal)',
-                        fontSize: '11px',
-                        color: '#aaaacc',
-                        lineHeight: 1.6,
-                        maxHeight: 200,
-                        overflowY: 'auto',
-                        whiteSpace: 'pre-wrap',
-                    }}
-                >
+                <div style={{
+                    marginTop: 4,
+                    padding: '6px 8px',
+                    background: '#0a0a15',
+                    border: '1px solid #1a1a3a',
+                    fontFamily: 'var(--font-terminal)',
+                    fontSize: '11px',
+                    color: '#8888aa',
+                    lineHeight: 1.6,
+                    whiteSpace: 'pre-wrap',
+                    wordBreak: 'break-word',
+                }}>
                     {item.detail}
+                    {item.searchUrl && (
+                        <a
+                            href={item.searchUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-1 mt-2"
+                            style={{ color: '#4a8fff', textDecoration: 'none', fontSize: '10px' }}
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <ExternalLink size={9} />
+                            View source
+                        </a>
+                    )}
                 </div>
             )}
         </div>
@@ -149,7 +155,6 @@ export function LiveFeed() {
     const { feedItems, clearFeed, isRunning } = useAgentStore()
     const bottomRef = useRef<HTMLDivElement>(null)
 
-    // Auto-scroll to bottom whenever new items arrive
     useEffect(() => {
         bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
     }, [feedItems.length, isRunning])
@@ -177,9 +182,10 @@ export function LiveFeed() {
                         </span>
                     )}
                 </div>
-                {feedItems.length > 0 && (
+                {feedItems.length > 0 && !isRunning && (
                     <button
                         onClick={clearFeed}
+                        title="Clear feed"
                         style={{
                             fontFamily: 'var(--font-pixel)',
                             fontSize: '6px',
@@ -215,7 +221,6 @@ export function LiveFeed() {
                         {feedItems.map((item) => (
                             <FeedItemRow key={item.id} item={item} />
                         ))}
-                        {/* Typing indicator pinned at the bottom */}
                         {isRunning && (
                             <div style={{
                                 borderLeft: '2px solid #ffd700',
@@ -227,19 +232,16 @@ export function LiveFeed() {
                             }}>
                                 <div className="flex gap-1">
                                     {[0, 1, 2].map(i => (
-                                        <div
-                                            key={i}
-                                            style={{
-                                                width: 4, height: 4,
-                                                background: '#ffd700',
-                                                animation: `pixel-pulse 0.8s infinite`,
-                                                animationDelay: `${i * 0.2}s`,
-                                            }}
-                                        />
+                                        <div key={i} style={{
+                                            width: 4, height: 4,
+                                            background: '#ffd700',
+                                            animation: 'pixel-pulse 0.8s infinite',
+                                            animationDelay: `${i * 0.2}s`,
+                                        }} />
                                     ))}
                                 </div>
                                 <span style={{ fontFamily: 'var(--font-terminal)', fontSize: '11px', color: '#ffd700' }}>
-                                    Agents are working...
+                                    Agents working...
                                 </span>
                             </div>
                         )}

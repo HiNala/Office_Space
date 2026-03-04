@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI, type ModelParams } from '@google/generative-ai'
+﻿import { GoogleGenerativeAI, type ModelParams } from '@google/generative-ai'
 import { AgentId, GeminiMessage } from '@/types'
 import { useAgentStore } from '@/store/useAgentStore'
 import { AGENT_DEFAULTS, DESK_POSITIONS, CONFERENCE_POSITIONS, COOLER_POSITION } from './agents'
@@ -206,9 +206,9 @@ Synthesize into a tight intelligence brief with clear source reasoning.`,
 
   sage: `X-RAY VISION ACTIVATED. Generate a prioritized list of exactly 10 improvements for the current context. Format each as:
 [CRITICAL/HIGH/MEDIUM/LOW] Issue: [specific description]
-→ Fix: [exact solution with implementation detail]
-→ Effort: [hours estimate]
-→ Impact: [user/business impact]
+â†’ Fix: [exact solution with implementation detail]
+â†’ Effort: [hours estimate]
+â†’ Impact: [user/business impact]
 
 Cover: accessibility (WCAG), performance, UX heuristics (Nielsen's 10), code quality, security, mobile.`,
 
@@ -260,14 +260,14 @@ export async function activateSuperPower(agentId: AgentId, apiKey: string): Prom
   store.addFeedItem({
     agentId,
     type: 'superpower',
-    message: `⚡ ${agentDef.name} activated ${agentDef.superPowerName}!`,
+    message: `âš¡ ${agentDef.name} activated ${agentDef.superPowerName}!`,
   })
 
   const response = await callAgent(agentId, SUPER_POWER_PROMPTS[agentId], apiKey)
 
   const store2 = useAgentStore.getState()
   store2.addReport({
-    title: `⚡ ${agentDef.superPowerName} — ${agentDef.name}`,
+    title: `âš¡ ${agentDef.superPowerName} â€” ${agentDef.name}`,
     content: response,
     agentIds: [agentId],
     type: 'superpower',
@@ -280,7 +280,7 @@ export async function activateSuperPower(agentId: AgentId, apiKey: string): Prom
   store2.addFeedItem({
     agentId,
     type: 'report',
-    message: `⚡ ${agentDef.superPowerName} report ready! Click to open.`,
+    message: `âš¡ ${agentDef.superPowerName} report ready! Click to open.`,
   })
 }
 
@@ -297,14 +297,14 @@ export async function runMission(mission: string, apiKey: string): Promise<void>
   store.addFeedItem({
     agentId: 'system',
     type: 'action',
-    message: `🎯 New mission: "${mission}"`,
+    message: `ðŸŽ¯ New mission: "${mission}"`,
   })
 
   if (!apiKey) {
     store.addFeedItem({
       agentId: 'system',
       type: 'error',
-      message: '⚠ Enter your Gemini API key in the top bar.',
+      message: 'âš  Enter your Gemini API key in the top bar.',
     })
     store.setIsRunning(false)
     return
@@ -327,7 +327,7 @@ Your job: contribute your specialty perspective. Reference teammates by name. Ke
   store.addFeedItem({
     agentId: 'system',
     type: 'action',
-    message: '📋 Phase 1: Architecture & strategy assessment...',
+    message: 'ðŸ“‹ Phase 1: Architecture & strategy assessment...',
   })
 
   const [rexResponse, floraResponse] = await Promise.all([
@@ -345,7 +345,7 @@ Your job: contribute your specialty perspective. Reference teammates by name. Ke
   store.addFeedItem({
     agentId: 'system',
     type: 'action',
-    message: '🔍 Phase 2: Research & security analysis...',
+    message: 'ðŸ” Phase 2: Research & security analysis...',
   })
 
   const [novaResponse, byteResponse] = await Promise.all([
@@ -364,7 +364,7 @@ Your job: contribute your specialty perspective. Reference teammates by name. Ke
   store.addFeedItem({
     agentId: 'system',
     type: 'action',
-    message: '🎨 Phase 3: UX synthesis...',
+    message: 'ðŸŽ¨ Phase 3: UX synthesis...',
   })
 
   moveAgentTo('sage', { x: 35, y: 48 })
@@ -389,7 +389,7 @@ Provide your UX assessment and final synthesis.`,
   store.addFeedItem({
     agentId: 'system',
     type: 'action',
-    message: '🏢 Team assembling for report generation...',
+    message: 'ðŸ¢ Team assembling for report generation...',
   })
 
   store.setConferenceMode(true)
@@ -403,7 +403,7 @@ Provide your UX assessment and final synthesis.`,
   store.addFeedItem({
     agentId: 'system',
     type: 'action',
-    message: '📝 Generating mission report...',
+    message: 'ðŸ“ Generating mission report...',
   })
 
   moveAgentTo('flora', { x: 80, y: 22 }) // Flora walks to printer
@@ -445,7 +445,7 @@ Be comprehensive and actionable.`,
   store.addFeedItem({
     agentId: 'system',
     type: 'report',
-    message: '📄 Mission report ready — click to open.',
+    message: 'ðŸ“„ Mission report ready â€” click to open.',
     reportId: newMissionReport?.id,
   })
 
@@ -472,7 +472,7 @@ export async function runGithubReview(
     store.addFeedItem({
       agentId: 'system',
       type: 'error',
-      message: '⚠ Enter your Gemini API key in the top bar.',
+      message: 'âš  Enter your Gemini API key in the top bar.',
     })
     store.setIsRunning(false)
     return
@@ -481,7 +481,7 @@ export async function runGithubReview(
   store.addFeedItem({
     agentId: 'system',
     type: 'action',
-    message: `🐙 Loading repository: ${repoUrl}`,
+    message: `ðŸ™ Loading repository: ${repoUrl}`,
   })
 
   // All agents walk to conference room
@@ -496,7 +496,7 @@ export async function runGithubReview(
   let fileContents: Record<string, string> = {}
 
   try {
-    const { fetchRepoTree, fetchKeyFiles } = await import('./github')
+    const { fetchRepoTree, fetchSelectedFiles } = await import('./github')
 
     store.addFeedItem({
       agentId: 'nova',
@@ -512,7 +512,7 @@ export async function runGithubReview(
       message: `NOVA: Found ${fileTree.length} files. Fetching key files...`,
     })
 
-    fileContents = await fetchKeyFiles(fileTree)
+    fileContents = await fetchSelectedFiles(fileTree)
 
     store.addFeedItem({
       agentId: 'nova',
@@ -551,7 +551,7 @@ ${codeContext}`
   store.addFeedItem({
     agentId: 'system',
     type: 'action',
-    message: '🔍 Team reviewing the codebase...',
+    message: 'ðŸ” Team reviewing the codebase...',
   })
 
   const [rexReview, sageReview, byteReview] = await Promise.all([
@@ -572,7 +572,7 @@ ${codeContext}`
   store.addFeedItem({
     agentId: 'system',
     type: 'action',
-    message: '🌐 NOVA researching best practices...',
+    message: 'ðŸŒ NOVA researching best practices...',
   })
 
   store.setAgentChatBubble('nova', 'Checking latest docs!', 3000)
@@ -590,7 +590,7 @@ ${codeContext}`
   store.addFeedItem({
     agentId: 'system',
     type: 'action',
-    message: '📝 FLORA synthesizing the final report...',
+    message: 'ðŸ“ FLORA synthesizing the final report...',
   })
 
   const fullReport = await callAgent(
@@ -643,7 +643,7 @@ Architecture: X/10 | Code Quality: X/10 | Security: X/10 | Performance: X/10
   )
 
   store.addReport({
-    title: `Code Review: ${repoUrl.split('/').slice(-2).join('/')} — ${reviewType}`,
+    title: `Code Review: ${repoUrl.split('/').slice(-2).join('/')} â€” ${reviewType}`,
     content: fullReport,
     agentIds: ['rex', 'nova', 'sage', 'byte', 'flora'],
     type: 'github_review',
@@ -655,7 +655,7 @@ Architecture: X/10 | Code Quality: X/10 | Security: X/10 | Performance: X/10
   store.addFeedItem({
     agentId: 'system',
     type: 'report',
-    message: '📄 Code review report ready! Click to open.',
+    message: 'ðŸ“„ Code review report ready! Click to open.',
   })
 
   await sleep(1500)

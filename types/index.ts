@@ -37,12 +37,14 @@ export interface FeedItem {
   id: string
   timestamp: Date
   agentId: AgentId | 'system'
-  type: 'search' | 'reasoning' | 'chat' | 'action' | 'result' | 'report' | 'superpower' | 'error'
+  type: 'search' | 'source' | 'reasoning' | 'chat' | 'action' | 'result' | 'report' | 'superpower' | 'error' | 'discussion'
   message: string
   detail?: string
   searchUrl?: string
+  searchQuery?: string
   reportId?: string
   isExpanded?: boolean
+  isStreaming?: boolean
 }
 
 export interface Report {
@@ -52,6 +54,8 @@ export interface Report {
   createdAt: Date
   agentIds: AgentId[]
   type: 'github_review' | 'mission_result' | 'superpower'
+  repoUrl?: string
+  reviewRequest?: string
 }
 
 export interface OfficeZone {

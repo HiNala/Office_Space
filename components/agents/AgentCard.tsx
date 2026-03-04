@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 import { useAgentStore } from '@/store/useAgentStore'
 import { AgentId } from '@/types'
 import { X, Zap } from 'lucide-react'
@@ -19,9 +19,12 @@ export function AgentCard({ agentId, onClose }: AgentCardProps) {
   const handleSuperPower = async () => {
     if (!geminiApiKey || powerLoading) return
     setPowerLoading(true)
-    onClose()
-    await activateSuperPower(agentId, geminiApiKey)
-    setPowerLoading(false)
+    try {
+      await activateSuperPower(agentId, geminiApiKey)
+    } finally {
+      setPowerLoading(false)
+      onClose() // close after work finishes so user sees loading state
+    }
   }
 
   return (
@@ -38,14 +41,14 @@ export function AgentCard({ agentId, onClose }: AgentCardProps) {
     >
       <div className="flex items-center justify-between mb-3">
         <div style={{ fontFamily: 'var(--font-pixel)', fontSize: 9, color: agent.color }}>
-          ◆ {agent.name} — {agent.role}
+          {agent.name} — {agent.role}
         </div>
-        <button onClick={onClose} className="text-gray-500 hover:text-white transition-colors">
+        <button onClick={onClose} aria-label="Close" className="text-gray-500 hover:text-white transition-colors">
           <X size={14} />
         </button>
       </div>
 
-      <div className="mb-3 p-2" style={{ background: 'rgba(0, 0, 0, 0.2)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '4px', fontSize: '11px', fontFamily: 'var(--font-terminal)', color: '#9898b0', lineHeight: 1.5 }}>
+      <div className="mb-3 p-2" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', fontSize: '11px', fontFamily: 'var(--font-terminal)', color: '#8888aa', lineHeight: 1.5 }}>
         {agent.personality}
       </div>
 
@@ -60,13 +63,12 @@ export function AgentCard({ agentId, onClose }: AgentCardProps) {
           rows={5}
           className="w-full resize-none outline-none"
           style={{
-            background: 'rgba(0, 0, 0, 0.3)',
-            border: '1px solid rgba(255, 255, 255, 0.1)',
-            borderRadius: '4px',
-            color: '#f2f2f7',
+            background: '#0a0a1a',
+            border: '2px solid #2a2a4a',
+            color: '#ccccee',
             fontFamily: 'var(--font-terminal)',
-            fontSize: '12px',
-            padding: '8px',
+            fontSize: '11px',
+            padding: '6px 8px',
             lineHeight: 1.5,
           }}
         />
@@ -78,7 +80,7 @@ export function AgentCard({ agentId, onClose }: AgentCardProps) {
           className="pixel-btn"
           style={{ borderColor: agent.isActive ? '#00aa44' : '#aa2222', color: agent.isActive ? '#00ff88' : '#ff4444', fontSize: '7px' }}
         >
-          {agent.isActive ? '● ACTIVE' : '○ INACTIVE'}
+          {agent.isActive ? 'ACTIVE' : 'INACTIVE'}
         </button>
       </div>
 
@@ -101,7 +103,7 @@ export function AgentCard({ agentId, onClose }: AgentCardProps) {
         }}
       >
         <Zap size={12} />
-        {powerLoading ? 'ACTIVATING...' : `⚡ ${agent.superPowerName}`}
+        {powerLoading ? 'ACTIVATING...' : `${agent.superPowerName}`}
       </button>
 
       {!geminiApiKey && (

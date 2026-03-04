@@ -15,17 +15,32 @@
   --font-pixel: var(--font-pixel);
   --font-terminal: var(--font-terminal);
 
-  /* Office color palette */
-  --floor-light: #c8a96e;
-  --floor-dark: #b8935a;
-  --wall-color: #2a2a4a;
-  --wall-accent: #3a3a6a;
-  --desk-wood: #8B6914;
-  --desk-dark: #6B4F10;
-  --carpet-blue: #2a3a5a;
-  --carpet-accent: #1a2a4a;
-  --window-blue: #4a8fd4;
-  --plant-green: #2d7a3a;
+  /* Environment — Visual Design Guide palette */
+  --floor-tile-a: #c8a96e;
+  --floor-tile-b: #b89458;
+  --floor-grout: #a07840;
+  --carpet-blue: #2d3d5e;
+  --carpet-pattern: #253450;
+  --wall-top: #1e1e38;
+  --wall-mid: #28283e;
+  --wall-wainscot: #343450;
+  --wall-trim: #4a4a6a;
+  --window-frame: #3a3a58;
+  --window-glass: #4a8fd4;
+  --window-shine: #7ab8f0;
+  --window-shadow: #2a5a8a;
+  --ceiling-light: #f0e8c0;
+  --ceiling-housing: #aaaacc;
+
+  /* Furniture */
+  --desk-surface: #7a5020;
+  --desk-front: #5a3810;
+  --desk-shadow: #3a2008;
+  --desk-highlight: #9a6830;
+  --chair-dark: #2a1e3a;
+  --chair-mid: #3a2e4a;
+  --bookshelf-wood: #6a3a14;
+  --shelf-shadow: #4a2a0c;
 
   /* Agent colors */
   --rex-color: #4a8fff;
@@ -35,19 +50,13 @@
   --flora-color: #ff8fcc;
 
   /* UI chrome */
-  --panel-bg: rgba(13, 13, 26, 0.65);
-  /* Translucent glass */
-  --panel-border: rgba(255, 255, 255, 0.1);
-  /* Sleek hardware border */
-  --panel-glow: rgba(58, 58, 138, 0.5);
-  --text-primary: #f2f2f7;
-  /* iOS-like off-white */
-  --text-dim: #9898b0;
+  --panel-bg: #0d0d1a;
+  --panel-border: #2a2a5a;
+  --panel-glow: #3a3a8a;
+  --text-primary: #e8e8ff;
+  --text-dim: #8888aa;
   --accent-yellow: #ffd700;
-  --accent-green: #34c759;
-  /* Apple-esque green */
-  --accent-blue: #0a84ff;
-  /* Apple-esque blue */
+  --accent-green: #00ff88;
 }
 
 * {
@@ -155,248 +164,271 @@ body {
    ===================== */
 
 .office-floor {
+  background-color: var(--floor-tile-a);
   background-image:
-    repeating-linear-gradient(0deg,
+    repeating-linear-gradient(
+      0deg,
       transparent,
-      transparent 31px,
-      rgba(0, 0, 0, 0.15) 31px,
-      rgba(0, 0, 0, 0.15) 32px),
-    repeating-linear-gradient(90deg,
+      transparent 47px,
+      var(--floor-grout) 47px,
+      var(--floor-grout) 48px
+    ),
+    repeating-linear-gradient(
+      90deg,
       transparent,
-      transparent 31px,
-      rgba(0, 0, 0, 0.15) 31px,
-      rgba(0, 0, 0, 0.15) 32px);
+      transparent 47px,
+      var(--floor-grout) 47px,
+      var(--floor-grout) 48px
+    );
+  background-size: 48px 48px;
+}
+
+.carpet-zone {
   background-color: var(--carpet-blue);
-  background-size: 32px 32px;
+  background-image:
+    repeating-linear-gradient(45deg, var(--carpet-pattern) 0px, var(--carpet-pattern) 4px, transparent 4px, transparent 8px),
+    repeating-linear-gradient(-45deg, var(--carpet-pattern) 0px, var(--carpet-pattern) 4px, transparent 4px, transparent 8px);
+  background-size: 16px 16px;
 }
 
 .office-wall {
-  background: linear-gradient(180deg, var(--wall-accent) 0%, var(--wall-color) 100%);
-  border-bottom: 4px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(
+    180deg,
+    var(--wall-top) 0%,
+    var(--wall-top) 12%,
+    var(--wall-mid) 12%,
+    var(--wall-mid) 70%,
+    var(--wall-trim) 70%,
+    var(--wall-trim) 73%,
+    var(--wall-wainscot) 73%,
+    var(--wall-wainscot) 100%
+  );
 }
 
 /* =====================
    SPRITE ANIMATIONS
    ===================== */
 
+/* =====================
+   WALK ANIMATIONS
+   ===================== */
+@keyframes walk-bob {
+  0%   { transform: translateY(0px); }
+  25%  { transform: translateY(-2px); }
+  50%  { transform: translateY(0px); }
+  75%  { transform: translateY(-2px); }
+  100% { transform: translateY(0px); }
+}
+
 @keyframes walk-right {
-
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-
-  25% {
-    transform: translateY(-2px);
-  }
-
-  75% {
-    transform: translateY(-2px);
-  }
+  0%, 100% { transform: translateY(0) scaleX(1); }
+  25% { transform: translateY(-2px) scaleX(1); }
+  75% { transform: translateY(-2px) scaleX(1); }
 }
 
 @keyframes walk-left {
+  0%, 100% { transform: translateY(0) scaleX(-1); }
+  25% { transform: translateY(-2px) scaleX(-1); }
+  75% { transform: translateY(-2px) scaleX(-1); }
+}
 
-  0%,
-  100% {
-    transform: translateY(0) scaleX(-1);
-  }
-
-  25% {
-    transform: translateY(-2px) scaleX(-1);
-  }
-
-  75% {
-    transform: translateY(-2px) scaleX(-1);
-  }
+/* =====================
+   IDLE ANIMATIONS (per-agent timing via duration override)
+   ===================== */
+@keyframes idle-breathe {
+  0%   { transform: translateY(0px); }
+  25%  { transform: translateY(-1px); }
+  50%  { transform: translateY(-2px); }
+  75%  { transform: translateY(-1px); }
+  100% { transform: translateY(0px); }
 }
 
 @keyframes idle-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2px); }
+}
 
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-
-  50% {
-    transform: translateY(-2px);
-  }
+/* =====================
+   WORK / THINK ANIMATIONS
+   ===================== */
+@keyframes typing-bob {
+  0%   { transform: translateY(0px) rotate(0deg); }
+  20%  { transform: translateY(-1px) rotate(-1deg); }
+  40%  { transform: translateY(0px) rotate(0deg); }
+  60%  { transform: translateY(-1px) rotate(1deg); }
+  80%  { transform: translateY(0px) rotate(0deg); }
+  100% { transform: translateY(0px) rotate(0deg); }
 }
 
 @keyframes typing {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  25% { transform: translateY(-1px) rotate(-2deg); }
+  75% { transform: translateY(-1px) rotate(2deg); }
+}
 
-  0%,
-  100% {
-    transform: translateY(0) rotate(0deg);
-  }
-
-  25% {
-    transform: translateY(-1px) rotate(-2deg);
-  }
-
-  75% {
-    transform: translateY(-1px) rotate(2deg);
-  }
+@keyframes thinking-hover {
+  0%   { transform: translateY(0px); opacity: 1; }
+  30%  { transform: translateY(-3px); opacity: 0.85; }
+  60%  { transform: translateY(-1px); opacity: 1; }
+  100% { transform: translateY(0px); opacity: 1; }
 }
 
 @keyframes thinking {
-  0% {
-    opacity: 1;
-    transform: scale(1);
-  }
+  0% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(0.95); }
+  100% { opacity: 1; transform: scale(1); }
+}
 
-  50% {
-    opacity: 0.7;
-    transform: scale(0.95);
-  }
-
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
+/* =====================
+   SUPERPOWER ANIMATIONS
+   ===================== */
+@keyframes superpower-flash {
+  0%   { filter: brightness(1) saturate(1); transform: scale(1); }
+  15%  { filter: brightness(3) saturate(2); transform: scale(0.9); }
+  30%  { filter: brightness(1.5) saturate(1.5); transform: scale(1.1); }
+  50%  { filter: brightness(2) saturate(2); transform: scale(1.05); }
+  70%  { filter: brightness(1.5) saturate(1.2); transform: scale(1.0); }
+  100% { filter: brightness(1) saturate(1); transform: scale(1); }
 }
 
 @keyframes superpower-glow {
-  0% {
-    filter: brightness(1);
-    box-shadow: none;
-  }
-
-  50% {
-    filter: brightness(2) saturate(2);
-    box-shadow: 0 0 30px currentColor;
-  }
-
-  100% {
-    filter: brightness(1);
-    box-shadow: none;
-  }
-}
-
-@keyframes chat-bubble-in {
-  0% {
-    transform: scale(0) translateY(10px);
-    opacity: 0;
-    transform-origin: bottom left;
-  }
-
-  70% {
-    transform: scale(1.05) translateY(-2px);
-    opacity: 1;
-  }
-
-  100% {
-    transform: scale(1) translateY(0);
-    opacity: 1;
-  }
-}
-
-@keyframes blink-cursor {
-
-  0%,
-  100% {
-    opacity: 1;
-  }
-
-  50% {
-    opacity: 0;
-  }
-}
-
-@keyframes pixel-pulse {
-
-  0%,
-  100% {
-    opacity: 1;
-  }
-
-  50% {
-    opacity: 0.6;
-  }
-}
-
-@keyframes report-slide-in {
-  0% {
-    transform: translateX(100%);
-    opacity: 0;
-  }
-
-  100% {
-    transform: translateX(0);
-    opacity: 1;
-  }
+  0% { filter: brightness(1); box-shadow: none; }
+  50% { filter: brightness(2) saturate(2); box-shadow: 0 0 30px currentColor; }
+  100% { filter: brightness(1); box-shadow: none; }
 }
 
 @keyframes power-activate {
-  0% {
-    transform: scale(1);
-  }
-
-  20% {
-    transform: scale(0.9);
-  }
-
-  60% {
-    transform: scale(1.15);
-  }
-
-  100% {
-    transform: scale(1);
-  }
-}
-
-@keyframes float-up {
-  0% {
-    transform: translateY(0);
-    opacity: 1;
-  }
-
-  100% {
-    transform: translateY(-30px);
-    opacity: 0;
-  }
+  0% { transform: scale(1); }
+  20% { transform: scale(0.9); }
+  60% { transform: scale(1.15); }
+  100% { transform: scale(1); }
 }
 
 @keyframes screen-flash {
-  0% {
-    opacity: 0;
-  }
+  0%   { opacity: 0; }
+  10%  { opacity: 0.6; }
+  20%  { opacity: 0.2; }
+  35%  { opacity: 0.4; }
+  60%  { opacity: 0.1; }
+  100% { opacity: 0; }
+}
 
-  20% {
-    opacity: 0.3;
-  }
+/* =====================
+   CHAT BUBBLE ANIMATIONS
+   ===================== */
+@keyframes bubble-in {
+  0%   { transform: scale(0) translateY(6px); opacity: 0; transform-origin: bottom left; }
+  60%  { transform: scale(1.08) translateY(-1px); opacity: 1; }
+  100% { transform: scale(1) translateY(0); opacity: 1; }
+}
 
-  40% {
-    opacity: 0;
-  }
+@keyframes bubble-out {
+  0%   { transform: scale(1); opacity: 1; }
+  100% { transform: scale(0); opacity: 0; transform-origin: bottom left; }
+}
 
-  60% {
-    opacity: 0.2;
-  }
+@keyframes chat-bubble-in {
+  0% { transform: scale(0) translateY(10px); opacity: 0; transform-origin: bottom left; }
+  70% { transform: scale(1.05) translateY(-2px); opacity: 1; }
+  100% { transform: scale(1) translateY(0); opacity: 1; }
+}
 
-  100% {
-    opacity: 0;
-  }
+/* =====================
+   THOUGHT BUBBLE (3-dot loader)
+   ===================== */
+@keyframes thought-dot {
+  0%, 100% { opacity: 0.2; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1); }
+}
+
+/* =====================
+   FURNITURE ANIMATIONS
+   ===================== */
+@keyframes monitor-glow {
+  0%   { box-shadow: 0 0 4px var(--glow-color, #4a8fff); }
+  50%  { box-shadow: 0 0 10px var(--glow-color, #4a8fff); }
+  100% { box-shadow: 0 0 4px var(--glow-color, #4a8fff); }
+}
+
+@keyframes monitor-glow-active {
+  0%   { box-shadow: 0 0 6px var(--glow-color, #4a8fff); }
+  50%  { box-shadow: 0 0 16px var(--glow-color, #4a8fff); }
+  100% { box-shadow: 0 0 6px var(--glow-color, #4a8fff); }
+}
+
+@keyframes plant-sway {
+  0%   { transform: rotate(0deg); transform-origin: bottom center; }
+  25%  { transform: rotate(1deg); transform-origin: bottom center; }
+  75%  { transform: rotate(-1deg); transform-origin: bottom center; }
+  100% { transform: rotate(0deg); transform-origin: bottom center; }
+}
+
+@keyframes light-flicker {
+  0%, 95%, 100% { opacity: 1; }
+  96%            { opacity: 0.3; }
+  97%            { opacity: 1; }
+  98%            { opacity: 0.6; }
+}
+
+@keyframes bubble-rise {
+  0%   { transform: translateY(0px); opacity: 0.8; }
+  100% { transform: translateY(-8px); opacity: 0; }
+}
+
+@keyframes paper-eject {
+  0%   { width: 0px; }
+  100% { width: 28px; }
+}
+
+@keyframes window-shimmer {
+  0%, 100% { opacity: 0.1; }
+  50% { opacity: 0.25; }
+}
+
+@keyframes clock-tick {
+  from { transform: rotate(0deg); transform-origin: bottom center; }
+  to   { transform: rotate(360deg); transform-origin: bottom center; }
+}
+
+@keyframes coffee-steam {
+  0%   { transform: translateY(0) translateX(0); opacity: 0; }
+  20%  { opacity: 0.5; }
+  50%  { transform: translateY(-4px) translateX(1px); opacity: 0.4; }
+  80%  { transform: translateY(-7px) translateX(-1px); opacity: 0.2; }
+  100% { transform: translateY(-10px) translateX(0); opacity: 0; }
+}
+
+@keyframes warning-blink {
+  0%, 49% { background: #ff0000; box-shadow: 0 0 6px #ff2222; }
+  50%, 100% { background: #440000; box-shadow: none; }
+}
+
+/* =====================
+   UI ANIMATIONS
+   ===================== */
+@keyframes blink-cursor {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+@keyframes pixel-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+@keyframes report-slide-in {
+  0% { transform: translateX(100%); opacity: 0; }
+  100% { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes float-up {
+  0% { transform: translateY(0); opacity: 1; }
+  100% { transform: translateY(-20px); opacity: 0; }
 }
 
 @keyframes feed-item-in {
-  from {
-    transform: translateX(20px) scale(0.95);
-    opacity: 0;
-    max-height: 0;
-    margin-bottom: 0;
-    padding-top: 0;
-    padding-bottom: 0;
-  }
-
-  to {
-    transform: translateX(0) scale(1);
-    opacity: 1;
-    max-height: 300px;
-    margin-bottom: 2px;
-    padding-top: 8px;
-    padding-bottom: 8px;
-  }
+  from { transform: translateX(20px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
 }
 
 /* =====================

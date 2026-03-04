@@ -31,7 +31,9 @@ interface AgentStore {
   setConferenceMode: (active: boolean) => void
 
   feedItems: FeedItem[]
-  addFeedItem: (item: Omit<FeedItem, 'id' | 'timestamp'>) => void
+  addFeedItem: (item: Partial<FeedItem> & Pick<FeedItem, 'agentId' | 'type' | 'message'>) => void
+  updateFeedItem: (id: string, updates: Partial<FeedItem>) => void
+  updateFeedItemByType: (type: FeedItem['type'], message: string) => void
   clearFeed: () => void
   toggleFeedItemExpanded: (id: string) => void
 
@@ -121,17 +123,37 @@ export const useAgentStore = create<AgentStore>((set, get) => ({
 
   feedItems: [],
   addFeedItem: (item) =>
+    set((state) => {
+      const newItem: FeedItem = {
+        id: item.id || Math.random().toString(36).slice(2),
+        timestamp: new Date(),
+        isExpanded: false,
+        isStreaming: false,
+        ...item,
+      } as FeedItem
+      if (item.id && state.feedItems.find(f => f.id === item.id)) {
+        return state
+      }
+      return {
+        feedItems: [...state.feedItems, newItem].slice(-200),
+      }
+    }),
+  updateFeedItem: (id, updates) =>
     set((state) => ({
-      feedItems: [
-        ...state.feedItems,
-        {
-          ...item,
-          id: Math.random().toString(36).slice(2),
-          timestamp: new Date(),
-          isExpanded: false,
-        },
-      ].slice(-200), // keep last 200
+      feedItems: state.feedItems.map((item) =>
+        item.id === id ? { ...item, ...updates } : item
+      ),
     })),
+  updateFeedItemByType: (type, message) =>
+    set((state) => {
+      const item = state.feedItems.find(f => f.type === type && f.agentId === 'nova')
+      if (!item) return state
+      return {
+        feedItems: state.feedItems.map((f) =>
+          f.id === item.id ? { ...f, message } : f
+        ),
+      }
+    }),
   clearFeed: () => set({ feedItems: [] }),
   toggleFeedItemExpanded: (id) =>
     set((state) => ({
