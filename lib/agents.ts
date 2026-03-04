@@ -88,6 +88,15 @@ Connect technical decisions to user outcomes. Challenge scope creep. Prioritize 
   },
 }
 
+// Single source of truth for all agent colours — import this everywhere
+export const AGENT_COLORS: Record<AgentId, string> = {
+  rex:   '#4a8fff',
+  nova:  '#b44aff',
+  sage:  '#4aff8f',
+  byte:  '#ff4a4a',
+  flora: '#ff8fcc',
+}
+
 export const DESK_POSITIONS = {
   rex:   { x: 12, y: 20 },
   nova:  { x: 68, y: 20 },

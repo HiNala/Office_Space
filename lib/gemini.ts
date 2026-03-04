@@ -438,20 +438,21 @@ Be comprehensive and actionable.`,
     type: 'mission_result',
   })
 
-  const reports = useAgentStore.getState().reports
-  if (reports.length > 0) store.setActiveReport(reports[0].id)
+  const missionReports = useAgentStore.getState().reports
+  const newMissionReport = missionReports[0]
+  if (newMissionReport) store.setActiveReport(newMissionReport.id)
 
   store.addFeedItem({
     agentId: 'system',
     type: 'report',
-    message: '📄 Mission report ready! Click to open.',
+    message: '📄 Mission report ready — click to open.',
+    reportId: newMissionReport?.id,
   })
 
   // Return agents to desks
   await sleep(1000)
   store.setConferenceMode(false)
   returnAllAgentsToDesks()
-  store.setIsRunning(false)
 }
 
 // =============================================

@@ -10,7 +10,7 @@ export function startIdleSystem() {
 
   idleInterval = setInterval(() => {
     const store = useAgentStore.getState()
-    if (store.isRunning) return // Don't interrupt active missions
+    if (store.isRunning || store.isConferenceMode) return // Don't interrupt active missions or conference
 
     const agents = Object.values(store.agents)
     const activeAgents = agents.filter((a) => a.isActive && a.state !== 'conference')

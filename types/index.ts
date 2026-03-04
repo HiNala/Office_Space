@@ -41,6 +41,7 @@ export interface FeedItem {
   message: string
   detail?: string
   searchUrl?: string
+  reportId?: string
   isExpanded?: boolean
 }
 
