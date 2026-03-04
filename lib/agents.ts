@@ -104,6 +104,14 @@ export const CONFERENCE_POSITIONS = {
   flora: { x: 40, y: 46 },
 }
 
+export const AGENT_COLORS: Record<string, string> = {
+  rex: '#4a8fff',
+  nova: '#b44aff',
+  sage: '#4aff8f',
+  byte: '#ff4a4a',
+  flora: '#ff8fcc',
+}
+
 export const COOLER_POSITION = { x: 44, y: 62 }
 export const SNACK_POSITION = { x: 80, y: 75 }
 export const PRINTER_POSITION = { x: 80, y: 20 }

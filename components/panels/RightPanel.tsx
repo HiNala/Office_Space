@@ -2,6 +2,7 @@
 import { useAgentStore } from '@/store/useAgentStore'
 import { FeedItem } from '@/types'
 import { FileText, X, Download } from 'lucide-react'
+import { useEffect, useRef } from 'react'
 
 const AGENT_COLORS: Record<string, string> = {
   rex: '#4a8fff',
@@ -180,6 +181,11 @@ function ReportView() {
 
 export function RightPanel() {
   const { feedItems, reports, activeReportId, setActiveReport, clearFeed, isRunning } = useAgentStore()
+  const bottomRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [feedItems.length, isRunning, activeReportId])
 
   return (
     <div className="flex flex-col h-full" style={{ background: '#0d0d1a' }}>
@@ -230,7 +236,10 @@ export function RightPanel() {
               </div>
             </div>
           ) : (
-            feedItems.map((item) => <FeedItemRow key={item.id} item={item} />)
+            <>
+              {feedItems.map((item) => <FeedItemRow key={item.id} item={item} />)}
+              <div ref={bottomRef} />
+            </>
           )}
         </div>
       )}

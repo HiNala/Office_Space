@@ -2,9 +2,9 @@
 import { useAgentStore } from '@/store/useAgentStore'
 import { AgentSprite } from './AgentSprite'
 import { Agent, AgentId } from '@/types'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { AgentCard } from '@/components/agents/AgentCard'
-import { startIdleMovement, startIdleChatBubbles } from '@/lib/orchestrator'
+import { AGENT_COLORS } from '@/lib/agents'
 
 function PixelDesk({ color, label }: { color: string; label: string }) {
   return (
@@ -38,6 +38,15 @@ function WaterCooler() {
   )
 }
 
+// 5-chair conference table for all 5 agents
+const CHAIR_STYLES: React.CSSProperties[] = [
+  { top: 4,    left: '25%', transform: 'translateX(-50%)' },
+  { top: 4,    left: '75%', transform: 'translateX(-50%)' },
+  { bottom: 4, left: '50%', transform: 'translateX(-50%)' },
+  { top: '50%', left: 4,   transform: 'translateY(-50%)' },
+  { top: '50%', right: 4,  transform: 'translateY(-50%)' },
+]
+
 function ConferenceTable() {
   return (
     <div style={{ position: 'relative', width: 120, height: 64 }}>
@@ -45,13 +54,8 @@ function ConferenceTable() {
         <div style={{ position: 'absolute', inset: 4, border: '1px solid rgba(255,255,255,0.1)' }} />
         <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', width: 16, height: 16, borderRadius: '50%', background: 'rgba(255,255,255,0.05)' }} />
       </div>
-      {[
-        { top: 4, left: '50%', transform: 'translateX(-50%)' },
-        { bottom: 4, left: '50%', transform: 'translateX(-50%)' },
-        { top: '50%', left: 4, transform: 'translateY(-50%)' },
-        { top: '50%', right: 4, transform: 'translateY(-50%)' },
-      ].map((style, i) => (
-        <div key={i} style={{ position: 'absolute', width: 14, height: 14, background: '#2a1a3a', border: '2px solid #4a3a5a', ...style as React.CSSProperties }} />
+      {CHAIR_STYLES.map((style, i) => (
+        <div key={i} style={{ position: 'absolute', width: 14, height: 14, background: '#2a1a3a', border: '2px solid #4a3a5a', ...style }} />
       ))}
     </div>
   )
@@ -60,19 +64,6 @@ function ConferenceTable() {
 export function OfficeMap() {
   const { agents, isConferenceMode, screenFlash } = useAgentStore()
   const [selectedAgent, setSelectedAgent] = useState<AgentId | null>(null)
-
-  useEffect(() => {
-    const stopMovement = startIdleMovement()
-    const stopBubbles = startIdleChatBubbles()
-    return () => {
-      stopMovement()
-      stopBubbles()
-    }
-  }, [])
-
-  const agentColors: Record<AgentId, string> = {
-    rex: '#4a8fff', nova: '#b44aff', sage: '#4aff8f', byte: '#ff4a4a', flora: '#ff8fcc'
-  }
 
   return (
     <div className="relative w-full h-full overflow-hidden" style={{ background: 'var(--carpet-blue)' }}>
@@ -94,7 +85,7 @@ export function OfficeMap() {
         }}
       />
 
-      {/* Pixel grid overlay (subtle) */}
+      {/* Pixel grid overlay */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
@@ -104,6 +95,7 @@ export function OfficeMap() {
         }}
       />
 
+      {/* Wall */}
       <div className="absolute top-0 left-0 right-0 h-16 office-wall" style={{ zIndex: 1 }}>
         <div style={{ position: 'absolute', top: 8, left: '25%', width: 48, height: 32, background: 'linear-gradient(135deg, #4a8fd4 0%, #6aafff 50%, #4a8fd4 100%)', border: '3px solid #2a3a5a', boxShadow: 'inset 0 0 8px rgba(255,255,255,0.3)' }}>
           <div style={{ position: 'absolute', inset: 0, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2, padding: 2 }}>
@@ -115,6 +107,7 @@ export function OfficeMap() {
             {[0,1,2,3].map(i => <div key={i} style={{ background: 'rgba(100,200,255,0.3)' }} />)}
           </div>
         </div>
+        {/* Clock */}
         <div style={{ position: 'absolute', top: 8, left: '50%', transform: 'translateX(-50%)', width: 24, height: 24, borderRadius: '50%', background: '#1a1a3a', border: '2px solid #8888aa', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div style={{ width: 2, height: 8, background: '#ffffff', transformOrigin: 'bottom center', transform: `rotate(${new Date().getHours() * 30}deg)`, position: 'absolute', bottom: '50%' }} />
           <div style={{ width: 1, height: 9, background: '#4a8fff', transformOrigin: 'bottom center', transform: `rotate(${new Date().getMinutes() * 6}deg)`, position: 'absolute', bottom: '50%' }} />
@@ -125,20 +118,22 @@ export function OfficeMap() {
 
       {/* REX desk */}
       <div className="absolute" style={{ left: '8%', top: '14%', zIndex: 2 }}>
-        <PixelDesk color={agentColors.rex} label="REX" />
+        <PixelDesk color={AGENT_COLORS.rex} label="REX" />
       </div>
 
       {/* NOVA desk */}
       <div className="absolute" style={{ right: '8%', top: '14%', zIndex: 2 }}>
-        <PixelDesk color={agentColors.nova} label="NOVA" />
+        <PixelDesk color={AGENT_COLORS.nova} label="NOVA" />
       </div>
 
       {/* Conference table */}
       <div className="absolute" style={{ left: '50%', top: '38%', transform: 'translate(-50%, -50%)', zIndex: 2 }}>
         <ConferenceTable />
         {isConferenceMode && (
-          <div className="absolute -top-6 left-1/2 -translate-x-1/2 whitespace-nowrap"
-            style={{ fontSize: '7px', fontFamily: 'var(--font-pixel)', color: '#ffd700', animation: 'pixel-pulse 1s infinite' }}>
+          <div
+            className="absolute -top-6 left-1/2 -translate-x-1/2 whitespace-nowrap"
+            style={{ fontSize: '7px', fontFamily: 'var(--font-pixel)', color: '#ffd700', animation: 'pixel-pulse 1s infinite' }}
+          >
             ◆ CONFERENCE MODE ◆
           </div>
         )}
@@ -146,17 +141,17 @@ export function OfficeMap() {
 
       {/* SAGE desk */}
       <div className="absolute" style={{ left: '8%', top: '56%', zIndex: 2 }}>
-        <PixelDesk color={agentColors.sage} label="SAGE" />
+        <PixelDesk color={AGENT_COLORS.sage} label="SAGE" />
       </div>
 
       {/* BYTE desk */}
       <div className="absolute" style={{ right: '8%', top: '56%', zIndex: 2 }}>
-        <PixelDesk color={agentColors.byte} label="BYTE" />
+        <PixelDesk color={AGENT_COLORS.byte} label="BYTE" />
       </div>
 
       {/* FLORA desk */}
       <div className="absolute" style={{ left: '50%', top: '66%', transform: 'translateX(-50%)', zIndex: 2 }}>
-        <PixelDesk color={agentColors.flora} label="FLORA" />
+        <PixelDesk color={AGENT_COLORS.flora} label="FLORA" />
       </div>
 
       {/* Water cooler */}
@@ -190,6 +185,7 @@ export function OfficeMap() {
         </div>
       </div>
 
+      {/* Agent sprites */}
       {(Object.values(agents) as Agent[]).map((agent) => (
         <AgentSprite
           key={agent.id}
@@ -198,6 +194,7 @@ export function OfficeMap() {
         />
       ))}
 
+      {/* Agent detail card — positioned near agent to avoid overlap */}
       {selectedAgent && (
         <AgentCard
           agentId={selectedAgent}
@@ -223,7 +220,7 @@ export function OfficeMap() {
       >
         <span>AGENTS: 5</span>
         <span>|</span>
-        <span>GEMINI 3.1</span>
+        <span>GEMINI 2.0</span>
         <span>|</span>
         <span style={{ color: '#4aff8f' }}>●</span>
         <span>LIVE</span>

@@ -19,9 +19,12 @@ export function AgentCard({ agentId, onClose }: AgentCardProps) {
   const handleSuperPower = async () => {
     if (!geminiApiKey || powerLoading) return
     setPowerLoading(true)
-    onClose()
-    await activateSuperPower(agentId, geminiApiKey)
-    setPowerLoading(false)
+    try {
+      await activateSuperPower(agentId, geminiApiKey)
+    } finally {
+      setPowerLoading(false)
+      onClose() // close after work is done (or failed), so user sees the loading state
+    }
   }
 
   return (

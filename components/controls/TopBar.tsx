@@ -6,9 +6,8 @@ import { Eye, EyeOff } from 'lucide-react'
 export function TopBar() {
   const { geminiApiKey, setGeminiApiKey } = useAgentStore()
   const [showKey, setShowKey] = useState(false)
-  const [localKey, setLocalKey] = useState(() =>
-    process.env.NEXT_PUBLIC_GEMINI_API_KEY || geminiApiKey
-  )
+  // Derive localKey from store — no separate state needed (avoids blur race)
+  const localKey = geminiApiKey
 
   return (
     <div className="flex items-center gap-3 px-4 py-2" style={{
@@ -35,8 +34,7 @@ export function TopBar() {
             type={showKey ? 'text' : 'password'}
             placeholder="AIza..."
             value={localKey}
-            onChange={(e) => setLocalKey(e.target.value)}
-            onBlur={() => setGeminiApiKey(localKey)}
+            onChange={(e) => setGeminiApiKey(e.target.value)}
             className="w-full outline-none pr-8"
             style={{
               background: '#0d0d1a',
@@ -50,6 +48,7 @@ export function TopBar() {
           />
           <button
             onClick={() => setShowKey(!showKey)}
+            aria-label={showKey ? 'Hide API key' : 'Show API key'}
             className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300"
           >
             {showKey ? <EyeOff size={12} /> : <Eye size={12} />}

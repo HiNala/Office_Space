@@ -1,8 +1,8 @@
 'use client'
-import { Agent } from '@/types'
+import { Agent, AgentId } from '@/types'
 import { ChatBubble } from './ChatBubble'
 
-const AGENT_PIXELS: Record<string, { body: string; hat?: string; accent: string }> = {
+const AGENT_PIXELS: Record<AgentId, { body: string; hat?: string; accent: string }> = {
   rex:   { body: '#3a6fd4', hat: '#1a2d6a', accent: '#4a8fff' },
   nova:  { body: '#8a3ab8', hat: undefined, accent: '#b44aff' },
   sage:  { body: '#2a7a4a', hat: undefined, accent: '#4aff8f' },
@@ -14,7 +14,6 @@ const STATE_ANIMATIONS: Record<string, string> = {
   idle: 'animate-[idle-bounce_2s_ease-in-out_infinite]',
   working: 'animate-[typing_0.5s_ease-in-out_infinite]',
   thinking: 'animate-[thinking_1s_ease-in-out_infinite]',
-  walking: 'animate-[walk-right_0.3s_ease-in-out_infinite]',
   chatting: 'animate-[idle-bounce_1s_ease-in-out_infinite]',
   break: 'animate-[idle-bounce_3s_ease-in-out_infinite]',
   conference: 'animate-[idle-bounce_2s_ease-in-out_infinite]',
@@ -27,7 +26,15 @@ interface AgentSpriteProps {
 
 export function AgentSprite({ agent, onClick }: AgentSpriteProps) {
   const colors = AGENT_PIXELS[agent.id]
-  const animClass = STATE_ANIMATIONS[agent.state] || STATE_ANIMATIONS.idle
+  // Pick walk direction animation; fall back to state-based animations
+  let animClass: string
+  if (agent.state === 'walking') {
+    animClass = agent.direction === 'left'
+      ? 'animate-[walk-left_0.3s_ease-in-out_infinite]'
+      : 'animate-[walk-right_0.3s_ease-in-out_infinite]'
+  } else {
+    animClass = STATE_ANIMATIONS[agent.state] || STATE_ANIMATIONS.idle
+  }
 
   const stateEmoji: Record<string, string> = {
     working: '⌨️',
