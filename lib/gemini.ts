@@ -319,6 +319,7 @@ export async function runMission(mission: string, apiKey: string): Promise<void>
     return
   }
 
+  try {
   // All agents move to their desks and start working
   await Promise.all([
     moveAgentToWork('rex'),
@@ -460,7 +461,18 @@ Be comprehensive and actionable.`,
   await sleep(1000)
   store.setConferenceMode(false)
   returnAllAgentsToDesks()
-  store.setIsRunning(false)
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Unknown error'
+    useAgentStore.getState().addFeedItem({
+      agentId: 'system',
+      type: 'error',
+      message: `Mission failed: ${msg}`,
+    })
+    useAgentStore.getState().setConferenceMode(false)
+    returnAllAgentsToDesks()
+  } finally {
+    useAgentStore.getState().setIsRunning(false)
+  }
 }
 
 // =============================================
@@ -499,6 +511,7 @@ export async function runGithubReview(
     setTimeout(() => moveAgentToConference(id), i * 300)
   })
 
+  try {
   // Fetch repo data via GitHub API helpers
   let fileTree: { path: string }[] = []
   let fileContents: Record<string, string> = {}
@@ -669,5 +682,16 @@ Architecture: X/10 | Code Quality: X/10 | Security: X/10 | Performance: X/10
   await sleep(1500)
   store.setConferenceMode(false)
   returnAllAgentsToDesks()
-  store.setIsRunning(false)
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Unknown error'
+    useAgentStore.getState().addFeedItem({
+      agentId: 'system',
+      type: 'error',
+      message: `Review failed: ${msg}`,
+    })
+    useAgentStore.getState().setConferenceMode(false)
+    returnAllAgentsToDesks()
+  } finally {
+    useAgentStore.getState().setIsRunning(false)
+  }
 }

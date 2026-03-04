@@ -1,10 +1,10 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 const BOOT_LINES = [
     'PIXEL AGENTS OS v1.0',
     '─────────────────────',
-    'Initializing Gemini 3.1 interface...',
+    'Initializing Gemini 2.0 interface...',
     'Loading agent personalities...',
     '  REX [ARCHITECT]......... OK',
     '  NOVA [RESEARCHER]........ OK',
@@ -21,28 +21,30 @@ const BOOT_LINES = [
 export function BootScreen({ onComplete }: { onComplete: () => void }) {
     const [lines, setLines] = useState<string[]>([])
     const [done, setDone] = useState(false)
+    // Use a ref so the effect never needs onComplete as a dep (avoids restarts)
+    const onCompleteRef = useRef(onComplete)
+    onCompleteRef.current = onComplete
 
     useEffect(() => {
-        let i = 0
+        let idx = 0
         const interval = setInterval(() => {
-            if (i < BOOT_LINES.length) {
-                setLines(prev => {
-                    if (!prev.includes(BOOT_LINES[i])) {
-                        return [...prev, BOOT_LINES[i]]
-                    }
-                    return prev
-                })
-                i++
+            if (idx < BOOT_LINES.length) {
+                // Capture line by value NOW, before idx is incremented,
+                // so the React state updater always sees the correct string
+                // even if React defers/batches the callback.
+                const line = BOOT_LINES[idx]
+                idx++
+                setLines(prev => [...prev, line])
             } else {
                 clearInterval(interval)
                 setTimeout(() => {
                     setDone(true)
-                    setTimeout(onComplete, 500)
+                    setTimeout(() => onCompleteRef.current(), 500)
                 }, 600)
             }
         }, 120)
         return () => clearInterval(interval)
-    }, [onComplete])
+    }, []) // empty — stable via ref
 
     return (
         <div
@@ -60,7 +62,7 @@ export function BootScreen({ onComplete }: { onComplete: () => void }) {
                         🕹️ PIXEL AGENTS
                     </div>
                     <div style={{ fontFamily: 'var(--font-pixel)', fontSize: '7px', color: '#4a8fff' }}>
-                        GEMINI 3.1 MULTI-AGENT SYSTEM
+                        GEMINI 2.0 MULTI-AGENT SYSTEM
                     </div>
                 </div>
 
@@ -78,7 +80,7 @@ export function BootScreen({ onComplete }: { onComplete: () => void }) {
                             style={{
                                 fontFamily: 'var(--font-terminal)',
                                 fontSize: '13px',
-                                color: line.includes('OK') ? '#00ff88' : line.includes('READY') ? '#ffd700' : line.startsWith('─') ? '#2a5a3a' : '#88cc88',
+                                color: !line ? '#88cc88' : line.includes('OK') ? '#00ff88' : line.includes('READY') ? '#ffd700' : line.startsWith('─') ? '#2a5a3a' : '#88cc88',
                                 lineHeight: 1.6,
                             }}
                         >
