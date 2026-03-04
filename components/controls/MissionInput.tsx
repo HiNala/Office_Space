@@ -2,6 +2,7 @@
 import { useAgentStore } from '@/store/useAgentStore'
 import { runMission, runGithubReview } from '@/lib/gemini'
 import { useState, KeyboardEvent } from 'react'
+import { Zap } from 'lucide-react'
 
 export function MissionInput() {
   const { geminiApiKey, isRunning, githubUrl, setGithubUrl } = useAgentStore()
@@ -156,55 +157,88 @@ export function MissionInput() {
           )}
         </>
       ) : (
-        <div className="flex flex-col gap-2">
-          <div className="flex gap-2">
+        <div className="flex flex-col gap-3 mt-1">
+          <div className="flex gap-2 relative group">
+            <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+              <span style={{ fontFamily: 'var(--font-pixel)', fontSize: '8px', color: '#666688' }}>github.com/</span>
+            </div>
             <input
-              value={githubUrl}
-              onChange={(e) => setGithubUrl(e.target.value)}
+              value={githubUrl.replace(/^https?:\/\/github\.com\//, '')}
+              onChange={(e) => setGithubUrl('https://github.com/' + e.target.value)}
               onKeyDown={handleKey}
-              placeholder="https://github.com/owner/repo"
+              placeholder="owner/repo"
               disabled={isRunning || !geminiApiKey}
               className="flex-1 outline-none"
               style={{
-                background: '#0d0d1a',
-                border: '2px solid #2a2a5a',
-                color: '#ccccee',
+                background: 'rgba(0, 0, 0, 0.3)',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                borderRadius: '4px',
+                color: '#f2f2f7',
                 fontFamily: 'var(--font-terminal)',
-                fontSize: '13px',
-                padding: '8px 12px',
-                height: 36,
+                fontSize: '14px',
+                padding: '8px 12px 8px 80px',
+                height: 40,
+                transition: 'border-color 0.2s',
               }}
+              onFocus={(e) => (e.target.style.borderColor = 'rgba(10, 132, 255, 0.5)')}
+              onBlur={(e) => (e.target.style.borderColor = 'rgba(255, 255, 255, 0.1)')}
             />
             <button
               onClick={handleGithubReview}
               disabled={!githubUrl.trim() || !geminiApiKey || isRunning}
               className="pixel-btn flex items-center gap-1"
               style={{
-                fontSize: '7px',
-                height: 36,
-                borderColor: '#4a8fff',
-                color: '#4a8fff',
+                fontSize: '7px', height: 40,
+                borderColor: 'rgba(10, 132, 255, 0.5)',
+                color: '#5ac8fa',
+                background: 'rgba(10, 132, 255, 0.1)',
                 opacity: !githubUrl.trim() || !geminiApiKey || isRunning ? 0.45 : 1,
               }}
             >
-              ⚡ REVIEW
+              <Zap size={10} />
+              REVIEW
             </button>
           </div>
-          <input
-            value={reviewType}
-            onChange={(e) => setReviewType(e.target.value)}
-            placeholder="Review focus (e.g. security audit, UX review...)"
-            className="outline-none"
-            style={{
-              background: '#0d0d1a',
-              border: '1px solid #1a1a3a',
-              color: '#8888aa',
-              fontFamily: 'var(--font-terminal)',
-              fontSize: '12px',
-              padding: '4px 10px',
-              height: 28,
-            }}
-          />
+
+          {/* Pills for Review Focus */}
+          <div className="flex flex-wrap gap-2 items-center">
+            <span style={{ fontSize: '7px', fontFamily: 'var(--font-pixel)', color: '#666688', marginRight: 4 }}>STYLE:</span>
+            {['Architecture', 'Security', 'Code Quality & UX', 'Full Audit'].map((pill) => {
+              const isActive = reviewType.includes(pill) || (pill === 'Full Audit' && reviewType.includes('Full'));
+              return (
+                <button
+                  key={pill}
+                  onClick={() => setReviewType(pill === 'Full Audit' ? 'Full code review — architecture, security, and UX' : `${pill} focus`)}
+                  style={{
+                    background: isActive ? 'rgba(52, 199, 89, 0.15)' : 'rgba(255, 255, 255, 0.05)',
+                    border: `1px solid ${isActive ? 'rgba(52, 199, 89, 0.4)' : 'rgba(255, 255, 255, 0.1)'}`,
+                    color: isActive ? '#34c759' : '#8888aa',
+                    borderRadius: '4px',
+                    padding: '4px 10px',
+                    fontSize: '11px',
+                    fontFamily: 'var(--font-terminal)',
+                    cursor: isRunning ? 'default' : 'pointer',
+                    transition: 'all 0.2s',
+                    pointerEvents: isRunning ? 'none' : 'auto',
+                  }}
+                  onMouseEnter={e => {
+                    if (!isActive) {
+                      e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
+                      e.currentTarget.style.color = '#ccccee';
+                    }
+                  }}
+                  onMouseLeave={e => {
+                    if (!isActive) {
+                      e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
+                      e.currentTarget.style.color = '#8888aa';
+                    }
+                  }}
+                >
+                  {pill}
+                </button>
+              );
+            })}
+          </div>
         </div>
       )}
     </div>

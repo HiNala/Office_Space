@@ -123,14 +123,14 @@ export const useAgentStore = create<AgentStore>((set, get) => ({
   addFeedItem: (item) =>
     set((state) => ({
       feedItems: [
+        ...state.feedItems,
         {
           ...item,
           id: Math.random().toString(36).slice(2),
           timestamp: new Date(),
           isExpanded: false,
         },
-        ...state.feedItems,
-      ].slice(0, 200),
+      ].slice(-200), // keep last 200
     })),
   clearFeed: () => set({ feedItems: [] }),
   toggleFeedItemExpanded: (id) =>

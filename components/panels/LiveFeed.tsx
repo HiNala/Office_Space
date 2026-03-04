@@ -147,11 +147,12 @@ function FeedItemRow({ item }: FeedItemRowProps) {
 
 export function LiveFeed() {
     const { feedItems, clearFeed, isRunning } = useAgentStore()
-    const endOfFeedRef = useRef<HTMLDivElement>(null)
+    const bottomRef = useRef<HTMLDivElement>(null)
 
+    // Auto-scroll to bottom whenever new items arrive
     useEffect(() => {
-        endOfFeedRef.current?.scrollIntoView({ behavior: 'smooth' })
-    }, [feedItems, isRunning])
+        bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+    }, [feedItems.length, isRunning])
 
     return (
         <div className="flex flex-col h-full">
@@ -198,34 +199,7 @@ export function LiveFeed() {
 
             {/* Feed content */}
             <div className="flex-1 overflow-y-auto" style={{ padding: '8px 0' }}>
-                {isRunning && (
-                    <div style={{
-                        borderLeft: '2px solid #ffd700',
-                        padding: '6px 8px 6px 10px',
-                        marginBottom: 4,
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 6,
-                    }}>
-                        <div className="flex gap-1">
-                            {[0, 1, 2].map(i => (
-                                <div
-                                    key={i}
-                                    style={{
-                                        width: 4, height: 4,
-                                        background: '#ffd700',
-                                        animation: `pixel-pulse 0.8s infinite`,
-                                        animationDelay: `${i * 0.2}s`,
-                                    }}
-                                />
-                            ))}
-                        </div>
-                        <span style={{ fontFamily: 'var(--font-terminal)', fontSize: '11px', color: '#ffd700' }}>
-                            Agents are working...
-                        </span>
-                    </div>
-                )}
-                {feedItems.length === 0 ? (
+                {feedItems.length === 0 && !isRunning ? (
                     <div className="flex flex-col items-center justify-center h-full gap-3" style={{ opacity: 0.4 }}>
                         <div style={{ fontSize: '32px' }}>🕹️</div>
                         <div style={{ fontFamily: 'var(--font-pixel)', fontSize: '7px', color: '#4a4a6a', textAlign: 'center', lineHeight: 2 }}>
@@ -237,11 +211,41 @@ export function LiveFeed() {
                         </div>
                     </div>
                 ) : (
-                    feedItems.map((item) => (
-                        <FeedItemRow key={item.id} item={item} />
-                    ))
+                    <>
+                        {feedItems.map((item) => (
+                            <FeedItemRow key={item.id} item={item} />
+                        ))}
+                        {/* Typing indicator pinned at the bottom */}
+                        {isRunning && (
+                            <div style={{
+                                borderLeft: '2px solid #ffd700',
+                                padding: '6px 8px 6px 10px',
+                                marginTop: 2,
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 6,
+                            }}>
+                                <div className="flex gap-1">
+                                    {[0, 1, 2].map(i => (
+                                        <div
+                                            key={i}
+                                            style={{
+                                                width: 4, height: 4,
+                                                background: '#ffd700',
+                                                animation: `pixel-pulse 0.8s infinite`,
+                                                animationDelay: `${i * 0.2}s`,
+                                            }}
+                                        />
+                                    ))}
+                                </div>
+                                <span style={{ fontFamily: 'var(--font-terminal)', fontSize: '11px', color: '#ffd700' }}>
+                                    Agents are working...
+                                </span>
+                            </div>
+                        )}
+                        <div ref={bottomRef} />
+                    </>
                 )}
-                <div ref={endOfFeedRef} />
             </div>
         </div>
     )

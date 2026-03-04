@@ -1,7 +1,7 @@
 import { GoogleGenerativeAI, type ModelParams } from '@google/generative-ai'
 import { AgentId, GeminiMessage } from '@/types'
 import { useAgentStore } from '@/store/useAgentStore'
-import { AGENT_DEFAULTS, DESK_POSITIONS, CONFERENCE_POSITIONS, COOLER_POSITION, AGENT_IDLE_CHATS } from './agents'
+import { AGENT_DEFAULTS, DESK_POSITIONS, CONFERENCE_POSITIONS, COOLER_POSITION } from './agents'
 import type { GitHubFile } from './github'
 
 function getClient(apiKey: string) {

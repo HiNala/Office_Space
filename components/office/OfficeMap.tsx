@@ -4,7 +4,6 @@ import { AgentSprite } from './AgentSprite'
 import { Agent, AgentId } from '@/types'
 import { useState, useEffect } from 'react'
 import { AgentCard } from '@/components/agents/AgentCard'
-import { startIdleSystem, stopIdleSystem } from '@/lib/idleSystem'
 
 function PixelDesk({ color, label }: { color: string; label: string }) {
   return (
@@ -71,11 +70,6 @@ export function OfficeMap() {
   useEffect(() => {
     const timer = setInterval(() => setTime(new Date()), 60000)
     return () => clearInterval(timer)
-  }, [])
-
-  useEffect(() => {
-    startIdleSystem()
-    return () => stopIdleSystem()
   }, [])
 
   const agentColors: Record<AgentId, string> = {

@@ -25,7 +25,7 @@ export function TopBar() {
       <div style={{ width: 1, height: 24, background: '#1a1a3a' }} />
 
       <div style={{ fontFamily: 'var(--font-pixel)', fontSize: '6px', color: '#8888ff', whiteSpace: 'nowrap' }}>
-        POWERED BY<br />GEMINI 3.1
+        POWERED BY<br />GEMINI 2.0
       </div>
 
       <div style={{ width: 1, height: 24, background: '#1a1a3a' }} />
