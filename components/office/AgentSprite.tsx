@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 import { useState, useCallback } from 'react'
 import { Agent, AgentId } from '@/types'
 import { ChatBubble } from './ChatBubble'
@@ -116,22 +116,36 @@ export function AgentSprite({ agent, onClick }: AgentSpriteProps) {
       }}
       onClick={handleClick}
     >
+      {/* Thought bubble — always visible during thinking state */}
+      {agent.state === 'thinking' && (
+        <div
+          className="absolute left-1/2 -translate-x-1/2 flex items-end gap-1 pointer-events-none"
+          style={{
+            bottom: '100%',
+            marginBottom: agent.chatBubble ? 64 : 8,
+            zIndex: 25,
+            animation: 'bubble-in 0.22s cubic-bezier(0.34,1.56,0.64,1)',
+          }}
+        >
+          <div style={{ width: 6, height: 6, borderRadius: '50%', background: v.accent, opacity: 0.35 }} />
+          <div style={{ width: 9, height: 9, borderRadius: '50%', background: v.accent, opacity: 0.6 }} />
+          <div style={{
+            width: 28, height: 28, borderRadius: '50%',
+            border: `2px solid ${v.accent}`,
+            background: 'rgba(5,5,20,0.92)',
+            boxShadow: `0 0 8px ${v.accent}55, 2px 2px 0 #000`,
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 3,
+          }}>
+            <div style={{ width: 5, height: 5, background: v.accent, borderRadius: '50%', animation: 'thought-dot 0.6s ease-in-out infinite' }} />
+            <div style={{ width: 5, height: 5, background: v.accent, borderRadius: '50%', animation: 'thought-dot 0.6s 0.2s ease-in-out infinite' }} />
+            <div style={{ width: 5, height: 5, background: v.accent, borderRadius: '50%', animation: 'thought-dot 0.6s 0.4s ease-in-out infinite' }} />
+          </div>
+        </div>
+      )}
+
       {/* Chat bubble */}
       {agent.chatBubble && (
         <ChatBubble message={agent.chatBubble} color={v.accent} />
-      )}
-
-      {/* Thought bubble (thinking state) */}
-      {agent.state === 'thinking' && !agent.chatBubble && (
-        <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 flex items-end gap-1" style={{ zIndex: 20 }}>
-          <div style={{ width: 8, height: 8, borderRadius: '50%', border: `1px solid ${v.accent}`, background: 'rgba(5,5,20,0.8)', opacity: 0.4 }} />
-          <div style={{ width: 12, height: 12, borderRadius: '50%', border: `1px solid ${v.accent}`, background: 'rgba(5,5,20,0.8)', opacity: 0.6 }} />
-          <div style={{ width: 20, height: 20, borderRadius: '50%', border: `2px solid ${v.accent}`, background: 'rgba(5,5,20,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 2 }}>
-            <div style={{ width: 4, height: 4, background: v.accent, borderRadius: '50%', animation: 'thought-dot 0.6s infinite' }} />
-            <div style={{ width: 4, height: 4, background: v.accent, borderRadius: '50%', animation: 'thought-dot 0.6s 0.2s infinite' }} />
-            <div style={{ width: 4, height: 4, background: v.accent, borderRadius: '50%', animation: 'thought-dot 0.6s 0.4s infinite' }} />
-          </div>
-        </div>
       )}
 
       {/* Sprite body — 48×96 CSS pixels (16×32 base at 3× scale) */}

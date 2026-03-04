@@ -107,7 +107,7 @@ function FeedItemRow({ item }: { item: FeedItem }) {
             {item.message}
           </div>
           {hasDetail && (
-            <div className="mt-1 p-1.5" style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid #1a1a3a', fontSize: '11px', color: '#aaaacc', lineHeight: 1.5, fontFamily: 'var(--font-terminal)', whiteSpace: 'pre-wrap', maxHeight: 200, overflow: 'auto' }}>
+            <div className="mt-1 p-1.5" style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid #1a1a3a', fontSize: '11px', color: '#aaaacc', lineHeight: 1.5, fontFamily: 'var(--font-terminal)', whiteSpace: 'pre-wrap', maxHeight: 300, overflow: 'auto' }}>
               {item.detail}
             </div>
           )}
@@ -179,13 +179,17 @@ function ReportView() {
 export function RightPanel() {
   const { feedItems, reports, activeReportId, setActiveReport, clearFeed, isRunning } = useAgentStore()
   const bottomRef = useRef<HTMLDivElement>(null)
+  const scrollAreaRef = useRef<HTMLDivElement>(null)
 
+  // Auto-scroll to bottom on any feed change
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [feedItems.length, isRunning, activeReportId])
+    if (scrollAreaRef.current) {
+      scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight
+    }
+  }, [feedItems, isRunning, activeReportId])
 
   return (
-    <div className="h-full flex flex-col" style={{ background: '#080812' }}>
+    <div className="h-full flex flex-col" style={{ background: '#080812', minHeight: 0 }}>
       {/* Panel header */}
       <div
         className="flex items-center justify-between px-3 py-2 flex-shrink-0"
@@ -219,7 +223,7 @@ export function RightPanel() {
       {activeReportId ? (
         <ReportView />
       ) : (
-        <div className="flex-1 overflow-y-auto flex flex-col">
+        <div ref={scrollAreaRef} className="flex-1 overflow-y-auto flex flex-col" style={{ minHeight: 0 }}>
           {feedItems.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full gap-4" style={{ color: '#333355' }}>
               <div style={{ fontSize: '40px' }}>🕹️</div>
@@ -238,8 +242,10 @@ export function RightPanel() {
         </div>
       )}
 
-      {/* Mission input at the bottom of the panel */}
-      <MissionInput />
+      {/* Mission input — always pinned at bottom, never pushed off */}
+      <div style={{ flexShrink: 0 }}>
+        <MissionInput />
+      </div>
     </div>
   )
 }

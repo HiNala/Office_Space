@@ -44,12 +44,12 @@ export function MissionInput() {
       style={{
         background: '#080812',
         borderTop: '2px solid #1a1a3a',
-        padding: '12px 16px',
+        padding: '8px 10px',
       }}
     >
-      <div className="flex gap-2 mb-2 items-center">
-        <div style={{ fontFamily: 'var(--font-pixel)', fontSize: '7px', color: '#ffd700', padding: '4px 0' }}>
-          MISSION ASSIGNMENT
+      <div className="flex gap-2 mb-1 items-center">
+        <div style={{ fontFamily: 'var(--font-pixel)', fontSize: '7px', color: '#ffd700' }}>
+          MISSION
         </div>
 
         {isRunning && (
@@ -82,9 +82,9 @@ export function MissionInput() {
             border: `2px solid ${isRunning ? '#2a2a3a' : '#2a2a5a'}`,
             color: isRunning ? '#555566' : '#ccccee',
             fontFamily: 'var(--font-terminal)',
-            fontSize: '14px',
-            padding: '8px 12px',
-            height: 40,
+            fontSize: '12px',
+            padding: '6px 10px',
+            height: 34,
           }}
         />
         <button
@@ -93,7 +93,7 @@ export function MissionInput() {
           className="pixel-btn pixel-btn-green flex items-center gap-1"
           style={{
             fontSize: '7px',
-            height: 40,
+            height: 34,
             opacity: !input.trim() || !geminiApiKey || isRunning ? 0.45 : 1,
           }}
         >
@@ -114,7 +114,7 @@ export function MissionInput() {
                 border: '1px solid #2a2a4a',
                 color: '#6666aa',
                 fontFamily: 'var(--font-terminal)',
-                fontSize: '11px',
+                fontSize: '10px',
                 cursor: 'pointer',
               }}
               onMouseEnter={(e) => {
