@@ -87,7 +87,6 @@ function renderMarkdown(text: string) {
 }
 
 function FeedItemRow({ item }: { item: FeedItem }) {
-  const { toggleFeedItemExpanded } = useAgentStore()
   const color = AGENT_COLORS[item.agentId] || '#8888aa'
   const hasDetail = Boolean(item.detail)
 
@@ -98,9 +97,7 @@ function FeedItemRow({ item }: { item: FeedItem }) {
         background: 'rgba(255,255,255,0.02)',
         borderLeft: `2px solid ${color}`,
         borderBottom: '1px solid rgba(255,255,255,0.03)',
-        cursor: hasDetail ? 'pointer' : 'default',
       }}
-      onClick={() => hasDetail && toggleFeedItemExpanded(item.id)}
     >
       <div className="flex items-start gap-1.5">
         <span style={{ fontSize: '11px', lineHeight: 1.5, flexShrink: 0 }}>{TYPE_ICONS[item.type] || '•'}</span>
@@ -109,14 +106,13 @@ function FeedItemRow({ item }: { item: FeedItem }) {
             <span style={{ color, fontWeight: 'bold' }}>{item.agentId.toUpperCase()} </span>
             {item.message}
           </div>
-          {item.isExpanded && item.detail && (
+          {hasDetail && (
             <div className="mt-1 p-1.5" style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid #1a1a3a', fontSize: '11px', color: '#aaaacc', lineHeight: 1.5, fontFamily: 'var(--font-terminal)', whiteSpace: 'pre-wrap', maxHeight: 200, overflow: 'auto' }}>
               {item.detail}
             </div>
           )}
           <div style={{ fontSize: '9px', color: '#333355', marginTop: 1, fontFamily: 'var(--font-terminal)' }}>
             {item.timestamp.toLocaleTimeString()}
-            {hasDetail && <span style={{ color: '#444466', marginLeft: 6 }}>{item.isExpanded ? '▲ collapse' : '▼ expand'}</span>}
           </div>
         </div>
       </div>
