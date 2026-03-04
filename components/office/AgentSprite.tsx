@@ -3,10 +3,10 @@ import { Agent } from '@/types'
 import { ChatBubble } from './ChatBubble'
 
 const AGENT_PIXELS: Record<string, { body: string; hat?: string; accent: string }> = {
-  rex:   { body: '#3a6fd4', hat: '#1a2d6a', accent: '#4a8fff' },
-  nova:  { body: '#8a3ab8', hat: undefined, accent: '#b44aff' },
-  sage:  { body: '#2a7a4a', hat: undefined, accent: '#4aff8f' },
-  byte:  { body: '#2a2a2a', hat: undefined, accent: '#ff4a4a' },
+  rex: { body: '#3a6fd4', hat: '#1a2d6a', accent: '#4a8fff' },
+  nova: { body: '#8a3ab8', hat: undefined, accent: '#b44aff' },
+  sage: { body: '#2a7a4a', hat: undefined, accent: '#4aff8f' },
+  byte: { body: '#2a2a2a', hat: undefined, accent: '#ff4a4a' },
   flora: { body: '#c43a7a', hat: undefined, accent: '#ff8fcc' },
 }
 
@@ -63,6 +63,18 @@ export function AgentSprite({ agent, onClick }: AgentSpriteProps) {
           </div>
         )}
 
+        <div style={{
+          position: 'absolute',
+          bottom: -4,
+          left: '50%',
+          transform: 'translateX(-50%)',
+          width: 14,
+          height: 4,
+          background: 'rgba(0,0,0,0.4)',
+          borderRadius: '50%',
+          filter: 'blur(1px)',
+        }} />
+
         <div className="relative" style={{ width: 20, height: 32, imageRendering: 'pixelated' }}>
           {colors.hat && (
             <div className="absolute" style={{
@@ -116,7 +128,7 @@ export function AgentSprite({ agent, onClick }: AgentSpriteProps) {
       </div>
 
       <div
-        className="opacity-0 group-hover:opacity-100 transition-opacity mt-1 px-1 py-0.5"
+        className="opacity-0 group-hover:opacity-100 transition-all duration-200 absolute -bottom-2 group-hover:-bottom-4 px-1 py-0.5"
         style={{
           background: 'rgba(0,0,0,0.8)',
           border: `1px solid ${colors.accent}`,
@@ -124,6 +136,7 @@ export function AgentSprite({ agent, onClick }: AgentSpriteProps) {
           fontFamily: 'var(--font-pixel)',
           color: colors.accent,
           whiteSpace: 'nowrap',
+          textShadow: '1px 1px 0 #000',
         }}
       >
         {agent.name}

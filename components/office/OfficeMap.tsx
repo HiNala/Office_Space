@@ -4,7 +4,7 @@ import { AgentSprite } from './AgentSprite'
 import { Agent, AgentId } from '@/types'
 import { useState, useEffect } from 'react'
 import { AgentCard } from '@/components/agents/AgentCard'
-import { startIdleMovement, startIdleChatBubbles } from '@/lib/orchestrator'
+import { startIdleSystem, stopIdleSystem } from '@/lib/idleSystem'
 
 function PixelDesk({ color, label }: { color: string; label: string }) {
   return (
@@ -62,12 +62,8 @@ export function OfficeMap() {
   const [selectedAgent, setSelectedAgent] = useState<AgentId | null>(null)
 
   useEffect(() => {
-    const stopMovement = startIdleMovement()
-    const stopBubbles = startIdleChatBubbles()
-    return () => {
-      stopMovement()
-      stopBubbles()
-    }
+    startIdleSystem()
+    return () => stopIdleSystem()
   }, [])
 
   const agentColors: Record<AgentId, string> = {

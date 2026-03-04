@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react'
 
 const BOOT_LINES = [
-    'PIXEL AGENTS OS v1.0',
+    'OFFICE SPACE OS v1.0',
     '─────────────────────',
     'Initializing Gemini 3.1 interface...',
     'Loading agent personalities...',
@@ -57,7 +57,7 @@ export function BootScreen({ onComplete }: { onComplete: () => void }) {
                 {/* Pixel art logo */}
                 <div className="text-center mb-6">
                     <div style={{ fontFamily: 'var(--font-pixel)', fontSize: '14px', color: '#ffd700', marginBottom: 4 }}>
-                        🕹️ PIXEL AGENTS
+                        🕹️ OFFICE SPACE
                     </div>
                     <div style={{ fontFamily: 'var(--font-pixel)', fontSize: '7px', color: '#4a8fff' }}>
                         GEMINI 3.1 MULTI-AGENT SYSTEM
