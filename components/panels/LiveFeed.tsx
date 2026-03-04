@@ -2,7 +2,7 @@
 import { useAgentStore } from '@/store/useAgentStore'
 import { FeedItem, AgentId } from '@/types'
 import { ChevronDown, ChevronRight, ExternalLink, Search, MessageSquare, Zap, AlertTriangle, FileText, Activity } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 
 const AGENT_COLORS: Record<string, string> = {
     rex: '#4a8fff',
@@ -147,6 +147,11 @@ function FeedItemRow({ item }: FeedItemRowProps) {
 
 export function LiveFeed() {
     const { feedItems, clearFeed, isRunning } = useAgentStore()
+    const endOfFeedRef = useRef<HTMLDivElement>(null)
+
+    useEffect(() => {
+        endOfFeedRef.current?.scrollIntoView({ behavior: 'smooth' })
+    }, [feedItems, isRunning])
 
     return (
         <div className="flex flex-col h-full">
@@ -236,6 +241,7 @@ export function LiveFeed() {
                         <FeedItemRow key={item.id} item={item} />
                     ))
                 )}
+                <div ref={endOfFeedRef} />
             </div>
         </div>
     )
