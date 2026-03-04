@@ -1,4 +1,5 @@
 ﻿'use client'
+import { useState, useCallback } from 'react'
 import { Agent, AgentId } from '@/types'
 import { ChatBubble } from './ChatBubble'
 
@@ -51,6 +52,8 @@ interface AgentSpriteProps {
 
 export function AgentSprite({ agent, onClick }: AgentSpriteProps) {
   const v = AGENT_VISUALS[agent.id as AgentId]
+  const [clicked, setClicked] = useState(false)
+  const [ripple, setRipple] = useState(false)
   if (!v) return null
 
   /* Per-agent idle timing + state-based animation */
@@ -78,6 +81,14 @@ export function AgentSprite({ agent, onClick }: AgentSpriteProps) {
   /* Y-sort: agents lower on screen render in front */
   const zIndex = Math.floor(agent.position.y) + 10
 
+  const handleClick = useCallback(() => {
+    setClicked(true)
+    setRipple(true)
+    setTimeout(() => setClicked(false), 350)
+    setTimeout(() => setRipple(false), 500)
+    onClick?.()
+  }, [onClick])
+
   return (
     <div
       className="absolute cursor-pointer group"
@@ -87,8 +98,9 @@ export function AgentSprite({ agent, onClick }: AgentSpriteProps) {
         transform: 'translate(-50%, -50%)',
         transition: 'left 0.8s ease-in-out, top 0.8s ease-in-out',
         zIndex,
+        ...(clicked ? { animation: 'click-bounce 0.35s ease-out' } : {}),
       }}
-      onClick={onClick}
+      onClick={handleClick}
     >
       {/* Chat bubble */}
       {agent.chatBubble && (
@@ -252,6 +264,17 @@ export function AgentSprite({ agent, onClick }: AgentSpriteProps) {
       >
         {agent.name}
       </div>
+
+      {/* Click ripple effect */}
+      {ripple && (
+        <div style={{
+          position: 'absolute', top: '50%', left: '50%',
+          width: 48, height: 48, borderRadius: '50%',
+          border: `2px solid ${v.accent}`,
+          animation: 'ripple-out 0.5s ease-out forwards',
+          pointerEvents: 'none',
+        }} />
+      )}
     </div>
   )
 }
