@@ -432,6 +432,45 @@ body {
 }
 
 /* =====================
+   MICRO-INTERACTION ANIMATIONS
+   ===================== */
+@keyframes click-bounce {
+  0%   { transform: translate(-50%, -50%) scale(1); }
+  15%  { transform: translate(-50%, -50%) scale(0.85); }
+  40%  { transform: translate(-50%, -50%) scale(1.12); }
+  60%  { transform: translate(-50%, -50%) scale(0.95); }
+  80%  { transform: translate(-50%, -50%) scale(1.03); }
+  100% { transform: translate(-50%, -50%) scale(1); }
+}
+
+@keyframes button-press {
+  0%   { transform: scale(1); filter: brightness(1); }
+  30%  { transform: scale(0.9); filter: brightness(1.5); }
+  60%  { transform: scale(1.05); filter: brightness(1.2); }
+  100% { transform: scale(1); filter: brightness(1); }
+}
+
+@keyframes button-hover-glow {
+  0%, 100% { box-shadow: 0 0 4px currentColor; }
+  50%      { box-shadow: 0 0 12px currentColor, 0 0 24px currentColor; }
+}
+
+@keyframes ripple-out {
+  0%   { transform: translate(-50%, -50%) scale(0); opacity: 0.6; }
+  100% { transform: translate(-50%, -50%) scale(2.5); opacity: 0; }
+}
+
+@keyframes keyboard-particle {
+  0%   { transform: translateY(0) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(-12px) rotate(45deg); opacity: 0; }
+}
+
+@keyframes select-ring {
+  0%, 100% { box-shadow: 0 0 0 2px transparent; }
+  50%      { box-shadow: 0 0 0 3px currentColor; }
+}
+
+/* =====================
    SCANLINE OVERLAY
    ===================== */
 @keyframes scanline-crawl {

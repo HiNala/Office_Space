@@ -10,6 +10,8 @@ const AGENT_IDS: AgentId[] = ['rex', 'nova', 'sage', 'byte', 'flora']
 export function TopBar() {
   const { geminiApiKey, setGeminiApiKey } = useAgentStore()
   const [showKey, setShowKey] = useState(false)
+  // Derive localKey from store — no separate state needed (avoids blur race)
+  const localKey = geminiApiKey
 
   return (
     <div className="flex items-center gap-3 px-4 py-2" style={{
@@ -26,7 +28,7 @@ export function TopBar() {
       <div style={{ width: 1, height: 24, background: '#1a1a3a' }} />
 
       <div style={{ fontFamily: 'var(--font-pixel)', fontSize: '6px', color: '#8888ff', whiteSpace: 'nowrap' }}>
-        POWERED BY<br />GEMINI 2.0
+        POWERED BY<br/>GEMINI 2.0
       </div>
 
       <div style={{ width: 1, height: 24, background: '#1a1a3a' }} />
@@ -37,7 +39,7 @@ export function TopBar() {
           <input
             type={showKey ? 'text' : 'password'}
             placeholder="AIza..."
-            value={geminiApiKey}
+            value={localKey}
             onChange={(e) => setGeminiApiKey(e.target.value)}
             className="w-full outline-none pr-8"
             style={{

@@ -23,7 +23,7 @@ export function AgentCard({ agentId, onClose }: AgentCardProps) {
       await activateSuperPower(agentId, geminiApiKey)
     } finally {
       setPowerLoading(false)
-      onClose() // close after work finishes so user sees loading state
+      onClose() // close after work is done (or failed), so user sees the loading state
     }
   }
 
@@ -87,7 +87,7 @@ export function AgentCard({ agentId, onClose }: AgentCardProps) {
       <button
         onClick={handleSuperPower}
         disabled={powerLoading || !geminiApiKey}
-        className="w-full flex items-center justify-center gap-2"
+        className="w-full flex items-center justify-center gap-2 superpower-btn"
         style={{
           background: powerLoading ? '#1a1a1a' : `linear-gradient(135deg, ${agent.color}22, ${agent.color}44)`,
           border: `2px solid ${agent.color}`,
@@ -98,8 +98,27 @@ export function AgentCard({ agentId, onClose }: AgentCardProps) {
           cursor: powerLoading ? 'wait' : 'pointer',
           boxShadow: `3px 3px 0 #000, 0 0 10px ${agent.color}33`,
           animation: powerLoading ? 'pixel-pulse 0.5s infinite' : 'none',
-          transition: 'all 0.1s',
+          transition: 'box-shadow 0.2s, transform 0.1s',
           opacity: !geminiApiKey ? 0.5 : 1,
+        }}
+        onMouseEnter={(e) => {
+          if (!powerLoading) {
+            e.currentTarget.style.boxShadow = `3px 3px 0 #000, 0 0 16px ${agent.color}66, 0 0 32px ${agent.color}22`
+          }
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.boxShadow = `3px 3px 0 #000, 0 0 10px ${agent.color}33`
+          e.currentTarget.style.transform = ''
+        }}
+        onMouseDown={(e) => {
+          if (!powerLoading) {
+            e.currentTarget.style.transform = 'scale(0.92)'
+            e.currentTarget.style.boxShadow = `1px 1px 0 #000, 0 0 20px ${agent.color}88`
+          }
+        }}
+        onMouseUp={(e) => {
+          e.currentTarget.style.transform = 'scale(1.05)'
+          setTimeout(() => { if (e.currentTarget) e.currentTarget.style.transform = '' }, 150)
         }}
       >
         <Zap size={12} />

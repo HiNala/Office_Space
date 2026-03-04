@@ -1,9 +1,9 @@
-﻿'use client'
-import { useEffect, useState } from 'react'
+'use client'
+import { useEffect, useRef, useState } from 'react'
 
 const BOOT_LINES = [
-    'OFFICE SPACE OS v1.0',
-    '─────────────────────────────',
+    'PIXEL AGENTS OS v1.0',
+    '─────────────────────',
     'Initializing Gemini 2.0 interface...',
     'Loading agent personalities...',
     '  REX [ARCHITECT]......... OK',
@@ -25,24 +25,30 @@ interface BootScreenProps {
 export function BootScreen({ onComplete }: BootScreenProps) {
     const [lines, setLines] = useState<string[]>([])
     const [done, setDone] = useState(false)
+    // Use a ref so the effect never needs onComplete as a dep (avoids restarts)
+    const onCompleteRef = useRef(onComplete)
+    onCompleteRef.current = onComplete
 
     useEffect(() => {
-        let i = 0
+        let idx = 0
         const interval = setInterval(() => {
-            if (i < BOOT_LINES.length) {
-                const line = BOOT_LINES[i]
+            if (idx < BOOT_LINES.length) {
+                // Capture line by value NOW, before idx is incremented,
+                // so the React state updater always sees the correct string
+                // even if React defers/batches the callback.
+                const line = BOOT_LINES[idx]
+                idx++
                 setLines(prev => [...prev, line])
-                i++
             } else {
                 clearInterval(interval)
                 setTimeout(() => {
                     setDone(true)
-                    setTimeout(onComplete, 500)
+                    setTimeout(() => onCompleteRef.current(), 500)
                 }, 600)
             }
         }, 120)
         return () => clearInterval(interval)
-    }, []) // eslint-disable-line react-hooks/exhaustive-deps
+    }, []) // empty — stable via ref
 
     return (
         <div
@@ -66,7 +72,17 @@ export function BootScreen({ onComplete }: BootScreenProps) {
 
                 <div style={{ fontFamily: 'var(--font-terminal)', fontSize: '12px', color: '#4aff8f', lineHeight: 1.8 }}>
                     {lines.map((line, i) => (
-                        <div key={i} style={{ opacity: 0.9 }}>{line}</div>
+                        <div
+                            key={i}
+                            style={{
+                                fontFamily: 'var(--font-terminal)',
+                                fontSize: '13px',
+                                color: !line ? '#88cc88' : line.includes('OK') ? '#00ff88' : line.includes('READY') ? '#ffd700' : line.startsWith('─') ? '#2a5a3a' : '#88cc88',
+                                lineHeight: 1.6,
+                            }}
+                        >
+                            {line}
+                        </div>
                     ))}
                     {!done && (
                         <span style={{ color: '#ffd700', animation: 'pixel-pulse 0.6s infinite' }}>█</span>

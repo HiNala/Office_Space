@@ -5,15 +5,13 @@ import { OfficeMap } from '@/components/office/OfficeMap'
 import { RightPanel } from '@/components/panels/RightPanel'
 import { MissionInput } from '@/components/controls/MissionInput'
 import { BootScreen } from '@/components/ui/BootScreen'
-import { startIdleSystem, stopIdleSystem } from '@/lib/idleSystem'
+import { startIdleSystem } from '@/lib/idleSystem'
 
 export default function Home() {
   const [booted, setBooted] = useState(false)
 
   useEffect(() => {
-    if (!booted) return
-    startIdleSystem()
-    return () => stopIdleSystem()
+    if (booted) startIdleSystem()
   }, [booted])
 
   return (
