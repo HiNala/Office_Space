@@ -1,22 +1,47 @@
-'use client'
+﻿'use client'
 import { Agent, AgentId } from '@/types'
 import { ChatBubble } from './ChatBubble'
 
-const AGENT_PIXELS: Record<AgentId, { body: string; hat?: string; accent: string }> = {
-  rex:   { body: '#3a6fd4', hat: '#1a2d6a', accent: '#4a8fff' },
-  nova:  { body: '#8a3ab8', hat: undefined, accent: '#b44aff' },
-  sage:  { body: '#2a7a4a', hat: undefined, accent: '#4aff8f' },
-  byte:  { body: '#2a2a2a', hat: undefined, accent: '#ff4a4a' },
-  flora: { body: '#c43a7a', hat: undefined, accent: '#ff8fcc' },
+/* Per-agent visual config following Visual Design Guide */
+interface AgentVisuals {
+  body: string
+  accent: string
+  skin: string
+  hair: string
+  hairStyle: 'flat' | 'wild' | 'slick' | 'wave' | 'long'
+  outfit: string
+  shoes: string
+  idleDuration: number
+  accessory?: 'hat' | 'glasses' | 'sunglasses'
+  accessoryColor?: string
 }
 
-const STATE_ANIMATIONS: Record<string, string> = {
-  idle: 'animate-[idle-bounce_2s_ease-in-out_infinite]',
-  working: 'animate-[typing_0.5s_ease-in-out_infinite]',
-  thinking: 'animate-[thinking_1s_ease-in-out_infinite]',
-  chatting: 'animate-[idle-bounce_1s_ease-in-out_infinite]',
-  break: 'animate-[idle-bounce_3s_ease-in-out_infinite]',
-  conference: 'animate-[idle-bounce_2s_ease-in-out_infinite]',
+const AGENT_VISUALS: Record<AgentId, AgentVisuals> = {
+  rex: {
+    body: '#2a4a8a', accent: '#4a8fff', skin: '#f5c8a0',
+    hair: '#1e2a4a', hairStyle: 'flat', outfit: '#2a4a8a',
+    shoes: '#2a2a2a', idleDuration: 1600, accessory: 'hat', accessoryColor: '#4a8fff',
+  },
+  nova: {
+    body: '#6a2a9a', accent: '#b44aff', skin: '#f5c8a0',
+    hair: '#3a1a5a', hairStyle: 'long', outfit: '#6a2a9a',
+    shoes: '#cc9944', idleDuration: 1200, accessory: 'glasses', accessoryColor: '#aaaacc',
+  },
+  sage: {
+    body: '#3a5a2a', accent: '#4aff8f', skin: '#e8b888',
+    hair: '#2a4a1a', hairStyle: 'wild', outfit: '#3a5a2a',
+    shoes: '#aa4422', idleDuration: 2000,
+  },
+  byte: {
+    body: '#1a1a1a', accent: '#ff4a4a', skin: '#e0c0a0',
+    hair: '#1a1a1a', hairStyle: 'slick', outfit: '#1a1a1a',
+    shoes: '#0a0a0a', idleDuration: 2000, accessory: 'sunglasses', accessoryColor: '#0a0a0a',
+  },
+  flora: {
+    body: '#e05090', accent: '#ff8fcc', skin: '#d09870',
+    hair: '#c87828', hairStyle: 'wave', outfit: '#e05090',
+    shoes: '#2a2a5a', idleDuration: 1500,
+  },
 }
 
 interface AgentSpriteProps {
@@ -25,112 +50,188 @@ interface AgentSpriteProps {
 }
 
 export function AgentSprite({ agent, onClick }: AgentSpriteProps) {
-  const colors = AGENT_PIXELS[agent.id]
-  // Pick walk direction animation; fall back to state-based animations
-  let animClass: string
+  const v = AGENT_VISUALS[agent.id as AgentId]
+  if (!v) return null
+
+  /* Per-agent idle timing + state-based animation */
+  let animStyle: React.CSSProperties = {}
   if (agent.state === 'walking') {
-    animClass = agent.direction === 'left'
-      ? 'animate-[walk-left_0.3s_ease-in-out_infinite]'
-      : 'animate-[walk-right_0.3s_ease-in-out_infinite]'
+    const dir = agent.direction === 'left' ? 'scaleX(-1)' : 'scaleX(1)'
+    animStyle = { animation: `walk-bob 0.4s ease-in-out infinite`, transform: dir }
+  } else if (agent.state === 'working') {
+    animStyle = { animation: `typing-bob 0.5s ease-in-out infinite` }
+  } else if (agent.state === 'thinking') {
+    animStyle = { animation: `thinking-hover 1.2s ease-in-out infinite` }
   } else {
-    animClass = STATE_ANIMATIONS[agent.state] || STATE_ANIMATIONS.idle
+    animStyle = { animation: `idle-breathe ${v.idleDuration}ms ease-in-out infinite` }
   }
 
-  const stateEmoji: Record<string, string> = {
-    working: '⌨️',
-    thinking: '💭',
-    break: '☕',
-    chatting: '💬',
-    conference: '🗣️',
+  /* Superpower flash */
+  if (agent.superPowerActive) {
+    animStyle = {
+      ...animStyle,
+      animation: `superpower-flash 0.6s ease-out`,
+      filter: `drop-shadow(0 0 8px ${v.accent})`,
+    }
   }
+
+  /* Y-sort: agents lower on screen render in front */
+  const zIndex = Math.floor(agent.position.y) + 10
 
   return (
     <div
-      className="absolute flex flex-col items-center cursor-pointer group"
+      className="absolute cursor-pointer group"
       style={{
         left: `${agent.position.x}%`,
         top: `${agent.position.y}%`,
         transform: 'translate(-50%, -50%)',
-        zIndex: 10,
         transition: 'left 0.8s ease-in-out, top 0.8s ease-in-out',
+        zIndex,
       }}
       onClick={onClick}
     >
+      {/* Chat bubble */}
       {agent.chatBubble && (
-        <ChatBubble message={agent.chatBubble} color={colors.accent} />
+        <ChatBubble message={agent.chatBubble} color={v.accent} />
       )}
 
-      <div
-        className={`relative ${animClass}`}
-        style={{ filter: agent.superPowerActive ? `drop-shadow(0 0 8px ${colors.accent})` : 'none' }}
-      >
-        {stateEmoji[agent.state] && (
-          <div className="absolute -top-5 left-1/2 -translate-x-1/2 text-xs" style={{ fontSize: '10px' }}>
-            {stateEmoji[agent.state]}
+      {/* Thought bubble (thinking state) */}
+      {agent.state === 'thinking' && !agent.chatBubble && (
+        <div className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 flex items-end gap-1" style={{ zIndex: 20 }}>
+          <div style={{ width: 4, height: 4, borderRadius: '50%', border: `1px solid ${v.accent}`, background: 'rgba(5,5,20,0.8)', opacity: 0.4 }} />
+          <div style={{ width: 6, height: 6, borderRadius: '50%', border: `1px solid ${v.accent}`, background: 'rgba(5,5,20,0.8)', opacity: 0.6 }} />
+          <div style={{ width: 10, height: 10, borderRadius: '50%', border: `1px solid ${v.accent}`, background: 'rgba(5,5,20,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
+            <div style={{ width: 2, height: 2, background: v.accent, borderRadius: '50%', animation: 'thought-dot 0.6s infinite' }} />
+            <div style={{ width: 2, height: 2, background: v.accent, borderRadius: '50%', animation: 'thought-dot 0.6s 0.2s infinite' }} />
+            <div style={{ width: 2, height: 2, background: v.accent, borderRadius: '50%', animation: 'thought-dot 0.6s 0.4s infinite' }} />
+          </div>
+        </div>
+      )}
+
+      {/* Sprite body */}
+      <div className="relative" style={{ width: 20, height: 32, imageRendering: 'pixelated', ...animStyle }}>
+
+        {/* === HAIR === */}
+        {v.hairStyle === 'flat' && (
+          <div style={{ position: 'absolute', top: 0, left: 4, width: 12, height: 4, background: v.hair }} />
+        )}
+        {v.hairStyle === 'long' && (<>
+          <div style={{ position: 'absolute', top: 0, left: 3, width: 14, height: 5, background: v.hair }}>
+            <div style={{ position: 'absolute', top: 0, left: 0, width: 3, height: 3, background: '#5a2a8a' }} />
+          </div>
+          <div style={{ position: 'absolute', top: 5, left: 2, width: 3, height: 9, background: v.hair, opacity: 0.7 }} />
+          <div style={{ position: 'absolute', top: 5, right: 2, width: 3, height: 8, background: v.hair, opacity: 0.7 }} />
+        </>)}
+        {v.hairStyle === 'wild' && (<>
+          <div style={{ position: 'absolute', top: 0, left: 4, width: 12, height: 4, background: v.hair }} />
+          <div style={{ position: 'absolute', top: -2, left: 5, width: 1, height: 3, background: v.hair }} />
+          <div style={{ position: 'absolute', top: -1, left: 8, width: 1, height: 2, background: v.hair }} />
+          <div style={{ position: 'absolute', top: -2, left: 12, width: 1, height: 3, background: v.hair }} />
+          <div style={{ position: 'absolute', top: -1, left: 14, width: 1, height: 2, background: v.hair }} />
+        </>)}
+        {v.hairStyle === 'slick' && (
+          <div style={{ position: 'absolute', top: 0, left: 4, width: 12, height: 3, background: v.hair }} />
+        )}
+        {v.hairStyle === 'wave' && (<>
+          <div style={{ position: 'absolute', top: 0, left: 3, width: 14, height: 5, background: v.hair }} />
+          <div style={{ position: 'absolute', top: 1, left: 2, width: 4, height: 3, background: v.hair }} />
+          <div style={{ position: 'absolute', top: 5, left: 2, width: 3, height: 6, background: v.hair, opacity: 0.6 }} />
+          <div style={{ position: 'absolute', top: 5, right: 3, width: 3, height: 5, background: v.hair, opacity: 0.6 }} />
+        </>)}
+
+        {/* === ACCESSORY on head === */}
+        {v.accessory === 'hat' && (
+          <div style={{ position: 'absolute', top: -1, left: 2, width: 16, height: 5, background: v.accessoryColor, borderRadius: '3px 3px 0 0' }}>
+            <div style={{ position: 'absolute', bottom: 0, left: -1, right: -1, height: 2, background: v.accessoryColor }} />
           </div>
         )}
 
-        <div className="relative" style={{ width: 20, height: 32, imageRendering: 'pixelated' }}>
-          {colors.hat && (
-            <div className="absolute" style={{
-              top: 0, left: 2, width: 16, height: 4,
-              background: colors.hat,
-              boxShadow: `0 2px 0 ${colors.hat}`,
+        {/* === HEAD / FACE === */}
+        <div style={{
+          position: 'absolute',
+          top: v.accessory === 'hat' ? 4 : (v.hairStyle === 'flat' || v.hairStyle === 'slick' ? 3 : 4),
+          left: 4, width: 12, height: 10,
+          background: v.skin,
+          boxShadow: 'inset -2px -2px 0 rgba(0,0,0,0.15)',
+        }}>
+          {/* Eyes */}
+          <div style={{ position: 'absolute', top: 3, left: 2, width: 2, height: 2, background: '#1a1a1a' }} />
+          <div style={{ position: 'absolute', top: 3, right: 2, width: 2, height: 2, background: '#1a1a1a' }} />
+          {/* Mouth */}
+          <div style={{ position: 'absolute', top: 7, left: 3, width: 6, height: 1, background: '#cc8866' }} />
+
+          {/* Glasses (NOVA) */}
+          {v.accessory === 'glasses' && (<>
+            <div style={{ position: 'absolute', top: 2, left: 1, width: 4, height: 4, border: '1px solid #aaaacc', background: 'transparent' }} />
+            <div style={{ position: 'absolute', top: 2, right: 1, width: 4, height: 4, border: '1px solid #aaaacc', background: 'transparent' }} />
+            <div style={{ position: 'absolute', top: 3, left: 5, width: 2, height: 1, background: '#aaaacc' }} />
+          </>)}
+          {/* Sunglasses (BYTE) */}
+          {v.accessory === 'sunglasses' && (
+            <div style={{ position: 'absolute', top: 2, left: 1, width: 10, height: 3, background: '#0a0a0a', border: '1px solid #2a2a2a' }}>
+              <div style={{ position: 'absolute', top: 0, left: 0, width: 1, height: 1, background: '#aaaaaa', opacity: 0.5 }} />
+            </div>
+          )}
+          {/* REX stubble */}
+          {agent.id === 'rex' && (
+            <div style={{ position: 'absolute', top: 8, left: 2, width: 8, height: 1, background: '#8a6a4a', opacity: 0.3 }} />
+          )}
+        </div>
+
+        {/* === TORSO === */}
+        <div style={{
+          position: 'absolute', top: 14, left: 2, width: 16, height: 12,
+          background: v.outfit,
+          boxShadow: `inset -2px -2px 0 rgba(0,0,0,0.2), inset 1px 1px 0 rgba(255,255,255,0.1)`,
+        }}>
+          {/* Outfit details per agent */}
+          {agent.id === 'rex' && (
+            <div style={{ position: 'absolute', top: 1, left: 2, right: 2, height: 2, background: '#4a8fff', opacity: 0.6 }} />
+          )}
+          {agent.id === 'nova' && (<>
+            <div style={{ position: 'absolute', top: 0, left: 4, right: 4, height: 2, background: '#7a3aaa' }} />
+            <div style={{ position: 'absolute', bottom: 1, left: 3, width: 8, height: 4, border: '1px solid #5a1a8a', background: 'transparent' }} />
+          </>)}
+          {agent.id === 'flora' && (<>
+            <div style={{ position: 'absolute', top: 0, left: 5, width: 6, height: 3, background: '#ffffff', opacity: 0.8 }} />
+            <div style={{ position: 'absolute', top: 4, left: 7, width: 1, height: 1, background: '#aa2868' }} />
+            <div style={{ position: 'absolute', top: 6, left: 7, width: 1, height: 1, background: '#aa2868' }} />
+            <div style={{ position: 'absolute', top: 8, left: 7, width: 1, height: 1, background: '#aa2868' }} />
+          </>)}
+
+          {/* Superpower aura */}
+          {agent.superPowerActive && (
+            <div style={{
+              position: 'absolute', inset: -4,
+              border: `2px solid ${v.accent}`,
+              boxShadow: `0 0 12px ${v.accent}`,
+              animation: 'pixel-pulse 0.3s infinite',
             }} />
           )}
-
-          <div className="absolute rounded-none" style={{
-            top: colors.hat ? 4 : 2,
-            left: 4, width: 12, height: 10,
-            background: '#f5c8a0',
-            boxShadow: `inset -2px -2px 0 rgba(0,0,0,0.2)`,
-          }}>
-            <div className="absolute" style={{ top: 3, left: 2, width: 2, height: 2, background: '#1a1a1a' }} />
-            <div className="absolute" style={{ top: 3, left: 8, width: 2, height: 2, background: '#1a1a1a' }} />
-            <div className="absolute" style={{ top: 7, left: 3, width: 6, height: 1, background: '#cc8866' }} />
-          </div>
-
-          <div className="absolute" style={{
-            top: 12, left: 2, width: 16, height: 14,
-            background: colors.body,
-            boxShadow: `inset -2px -2px 0 rgba(0,0,0,0.25), inset 1px 1px 0 rgba(255,255,255,0.1)`,
-          }}>
-            <div style={{ position: 'absolute', top: 2, left: 2, right: 2, height: 2, background: colors.accent, opacity: 0.6 }} />
-          </div>
-
-          <div className="absolute" style={{
-            top: 13, left: 0, width: 3, height: 10,
-            background: colors.body,
-            boxShadow: `inset -1px -1px 0 rgba(0,0,0,0.2)`,
-          }} />
-
-          <div className="absolute" style={{
-            top: 13, right: 0, width: 3, height: 10,
-            background: colors.body,
-            boxShadow: `inset -1px -1px 0 rgba(0,0,0,0.2)`,
-          }} />
-
-          <div className="absolute flex gap-1" style={{ bottom: 0, left: 3 }}>
-            <div style={{ width: 6, height: 8, background: '#2a1a4a', boxShadow: `0 2px 0 rgba(0,0,0,0.3)` }} />
-            <div style={{ width: 6, height: 8, background: '#2a1a4a', boxShadow: `0 2px 0 rgba(0,0,0,0.3)` }} />
-          </div>
-
-          <div className="absolute flex gap-0.5" style={{ bottom: -2, left: 2 }}>
-            <div style={{ width: 7, height: 3, background: '#1a1a1a' }} />
-            <div style={{ width: 7, height: 3, background: '#1a1a1a' }} />
-          </div>
         </div>
+
+        {/* === ARMS === */}
+        <div style={{ position: 'absolute', top: 14, left: 0, width: 3, height: 10, background: v.outfit, boxShadow: 'inset -1px -1px 0 rgba(0,0,0,0.2)' }} />
+        <div style={{ position: 'absolute', top: 14, right: 0, width: 3, height: 10, background: v.outfit, boxShadow: 'inset -1px -1px 0 rgba(0,0,0,0.2)' }} />
+
+        {/* === LEGS === */}
+        <div style={{ position: 'absolute', bottom: 3, left: 3, width: 6, height: 7, background: '#2a1a4a' }} />
+        <div style={{ position: 'absolute', bottom: 3, right: 3, width: 6, height: 7, background: '#2a1a4a' }} />
+
+        {/* === SHOES === */}
+        <div style={{ position: 'absolute', bottom: 0, left: 2, width: 7, height: 3, background: v.shoes }} />
+        <div style={{ position: 'absolute', bottom: 0, right: 2, width: 7, height: 3, background: v.shoes }} />
       </div>
 
+      {/* Hover name tag */}
       <div
-        className="opacity-0 group-hover:opacity-100 transition-opacity mt-1 px-1 py-0.5"
+        className="opacity-0 group-hover:opacity-100 transition-opacity duration-150"
         style={{
-          background: 'rgba(0,0,0,0.8)',
-          border: `1px solid ${colors.accent}`,
-          fontSize: '7px',
-          fontFamily: 'var(--font-pixel)',
-          color: colors.accent,
-          whiteSpace: 'nowrap',
+          textAlign: 'center', marginTop: 2, padding: '1px 4px',
+          background: 'rgba(0,0,0,0.85)', border: `1px solid ${v.accent}`,
+          fontFamily: 'var(--font-pixel)', fontSize: '6px',
+          color: v.accent, whiteSpace: 'nowrap',
+          transform: 'translateY(-2px)',
         }}
       >
         {agent.name}
