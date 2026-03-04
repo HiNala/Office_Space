@@ -45,7 +45,7 @@ export function AgentCard({ agentId, onClose }: AgentCardProps) {
         </button>
       </div>
 
-      <div className="mb-3 p-2" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', fontSize: '11px', fontFamily: 'var(--font-terminal)', color: '#8888aa', lineHeight: 1.5 }}>
+      <div className="mb-3 p-2" style={{ background: 'rgba(0, 0, 0, 0.2)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '4px', fontSize: '11px', fontFamily: 'var(--font-terminal)', color: '#9898b0', lineHeight: 1.5 }}>
         {agent.personality}
       </div>
 
@@ -60,12 +60,13 @@ export function AgentCard({ agentId, onClose }: AgentCardProps) {
           rows={5}
           className="w-full resize-none outline-none"
           style={{
-            background: '#0a0a1a',
-            border: '2px solid #2a2a4a',
-            color: '#ccccee',
+            background: 'rgba(0, 0, 0, 0.3)',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            borderRadius: '4px',
+            color: '#f2f2f7',
             fontFamily: 'var(--font-terminal)',
-            fontSize: '11px',
-            padding: '6px 8px',
+            fontSize: '12px',
+            padding: '8px',
             lineHeight: 1.5,
           }}
         />

@@ -12,8 +12,10 @@ export function TopBar() {
 
   return (
     <div className="flex items-center gap-3 px-4 py-2" style={{
-      background: '#080812',
-      borderBottom: '2px solid #1a1a3a',
+      background: 'rgba(13, 13, 26, 0.65)',
+      backdropFilter: 'blur(12px)',
+      WebkitBackdropFilter: 'blur(12px)',
+      borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
       height: 48,
     }}>
       <div style={{ fontFamily: 'var(--font-pixel)', fontSize: '10px', color: '#ffd700', letterSpacing: '0.1em', whiteSpace: 'nowrap' }}>
@@ -23,7 +25,7 @@ export function TopBar() {
       <div style={{ width: 1, height: 24, background: '#1a1a3a' }} />
 
       <div style={{ fontFamily: 'var(--font-pixel)', fontSize: '6px', color: '#8888ff', whiteSpace: 'nowrap' }}>
-        POWERED BY<br/>GEMINI 3.1
+        POWERED BY<br />GEMINI 3.1
       </div>
 
       <div style={{ width: 1, height: 24, background: '#1a1a3a' }} />
@@ -39,11 +41,12 @@ export function TopBar() {
             onBlur={() => setGeminiApiKey(localKey)}
             className="w-full outline-none pr-8"
             style={{
-              background: '#0d0d1a',
-              border: `2px solid ${geminiApiKey ? '#00aa44' : '#2a2a5a'}`,
-              color: '#ccccee',
+              background: 'rgba(0, 0, 0, 0.3)',
+              border: `1px solid ${geminiApiKey ? 'rgba(52, 199, 89, 0.4)' : 'rgba(255, 255, 255, 0.1)'}`,
+              borderRadius: '4px',
+              color: '#f2f2f7',
               fontFamily: 'var(--font-terminal)',
-              fontSize: '13px',
+              fontSize: '14px',
               padding: '4px 8px',
               height: 28,
             }}
@@ -63,13 +66,13 @@ export function TopBar() {
       </div>
 
       <div className="flex items-center gap-1 ml-auto">
-        {(['rex','nova','sage','byte','flora'] as const).map((id) => (
+        {(['rex', 'nova', 'sage', 'byte', 'flora'] as const).map((id) => (
           <div key={id} style={{
             width: 6, height: 6,
-            background: { rex:'#4a8fff', nova:'#b44aff', sage:'#4aff8f', byte:'#ff4a4a', flora:'#ff8fcc' }[id],
-            boxShadow: `0 0 4px ${{ rex:'#4a8fff', nova:'#b44aff', sage:'#4aff8f', byte:'#ff4a4a', flora:'#ff8fcc' }[id]}`,
+            background: { rex: '#4a8fff', nova: '#b44aff', sage: '#4aff8f', byte: '#ff4a4a', flora: '#ff8fcc' }[id],
+            boxShadow: `0 0 4px ${{ rex: '#4a8fff', nova: '#b44aff', sage: '#4aff8f', byte: '#ff4a4a', flora: '#ff8fcc' }[id]}`,
             animation: 'pixel-pulse 2s infinite',
-            animationDelay: `${['rex','nova','sage','byte','flora'].indexOf(id) * 0.2}s`,
+            animationDelay: `${['rex', 'nova', 'sage', 'byte', 'flora'].indexOf(id) * 0.2}s`,
           }} />
         ))}
       </div>
