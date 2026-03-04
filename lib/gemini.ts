@@ -1,8 +1,7 @@
 import { GoogleGenerativeAI } from '@google/generative-ai'
 import { AgentId, GeminiMessage } from '@/types'
-import { AGENT_DEFAULTS, DESK_POSITIONS, CONFERENCE_POSITIONS, COOLER_POSITION } from '@/lib/agents'
-import { useAgentStore } from '@/store/useAgentStore'
 import { AGENT_DEFAULTS, DESK_POSITIONS, CONFERENCE_POSITIONS, COOLER_POSITION } from './agents'
+import { useAgentStore } from '@/store/useAgentStore'
 import type { GitHubFile } from './github'
 
 // =============================================
@@ -519,7 +518,7 @@ export async function runGithubReview(
   let fileContents: Record<string, string> = {}
 
   try {
-    const { fetchRepoTree, fetchKeyFiles } = await import('./github')
+    const { fetchRepoTree, fetchSelectedFiles: fetchKeyFiles } = await import('./github')
 
     store.addFeedItem({
       agentId: 'nova',

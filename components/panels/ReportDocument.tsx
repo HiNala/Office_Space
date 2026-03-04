@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 import { useAgentStore } from '@/store/useAgentStore'
 import { downloadReport, markdownToHtml } from '@/lib/report'
 import { Download, ChevronLeft, FileText, Clock, GitBranch, Zap } from 'lucide-react'

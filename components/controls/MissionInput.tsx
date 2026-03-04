@@ -1,6 +1,6 @@
-﻿'use client'
+'use client'
 import { useAgentStore } from '@/store/useAgentStore'
-import { runMission } from '@/lib/gemini'
+import { runMission, runGithubReview } from '@/lib/gemini'
 import { useState, KeyboardEvent } from 'react'
 
 export function MissionInput() {
@@ -15,6 +15,13 @@ export function MissionInput() {
     const value = input
     setInput('')
     await runMission(value, geminiApiKey)
+  }
+
+  const handleGithubReview = async () => {
+    if (!githubUrl.trim() || !geminiApiKey || isRunning) return
+    const url = githubUrl
+    setGithubUrl('')
+    await runGithubReview(url, reviewType, geminiApiKey)
   }
 
   const handleKey = (e: KeyboardEvent) => {

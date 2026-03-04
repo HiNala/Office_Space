@@ -97,33 +97,28 @@ export const AGENT_COLORS: Record<AgentId, string> = {
   flora: '#ff8fcc',
 }
 
+// Positions are % of the 720×560 office map canvas
 export const DESK_POSITIONS = {
-  rex:   { x: 12, y: 20 },
-  nova:  { x: 68, y: 20 },
-  sage:  { x: 12, y: 62 },
-  byte:  { x: 68, y: 62 },
-  flora: { x: 40, y: 72 },
+  rex:   { x: 5,  y: 24 },   // Zone A top-left chair
+  nova:  { x: 32, y: 24 },   // Zone A top-right chair
+  sage:  { x: 5,  y: 49 },   // Zone A middle-left chair
+  byte:  { x: 32, y: 49 },   // Zone A middle-right chair
+  flora: { x: 18, y: 74 },   // Bottom-center chair
 }
 
 export const CONFERENCE_POSITIONS = {
-  rex:   { x: 30, y: 42 },
-  nova:  { x: 50, y: 38 },
-  sage:  { x: 28, y: 52 },
-  byte:  { x: 52, y: 52 },
-  flora: { x: 40, y: 46 },
+  rex:   { x: 61, y: 30 },   // South-left chair
+  nova:  { x: 76, y: 17 },   // East-top chair
+  sage:  { x: 69, y: 31 },   // South-center chair
+  byte:  { x: 77, y: 30 },   // East-bottom chair
+  flora: { x: 67, y: 15 },   // North chair (head of table)
 }
 
-export const AGENT_COLORS: Record<string, string> = {
-  rex: '#4a8fff',
-  nova: '#b44aff',
-  sage: '#4aff8f',
-  byte: '#ff4a4a',
-  flora: '#ff8fcc',
-}
-
-export const COOLER_POSITION = { x: 44, y: 62 }
-export const SNACK_POSITION = { x: 80, y: 75 }
-export const PRINTER_POSITION = { x: 80, y: 20 }
+export const COOLER_POSITION  = { x: 45, y: 70 }  // Water cooler
+export const KITCHEN_POSITION = { x: 79, y: 65 }  // Kitchen bar stools
+export const LOUNGE_POSITION  = { x: 66, y: 41 }  // Sofa lounge
+export const SNACK_POSITION   = { x: 88, y: 69 }  // Snack cabinet
+export const PRINTER_POSITION = { x: 32, y: 68 }  // Printer area
 
 export const AGENT_IDLE_CHATS: Record<AgentId, string[]> = {
   rex: [

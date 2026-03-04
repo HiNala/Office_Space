@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 import { useAgentStore } from '@/store/useAgentStore'
 import { FeedItem } from '@/types'
 import { ChevronDown, ChevronRight, ExternalLink, Search, MessageSquare, Zap, AlertTriangle, FileText, Activity } from 'lucide-react'

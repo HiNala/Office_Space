@@ -1,7 +1,13 @@
 import { AgentId } from '@/types'
 import { useAgentStore } from '@/store/useAgentStore'
-import { AGENT_IDLE_CHATS, DESK_POSITIONS } from './agents'
-import { sendAgentToBreak, moveAgentTo } from './gemini'
+import { AGENT_IDLE_CHATS, DESK_POSITIONS, COOLER_POSITION, KITCHEN_POSITION, LOUNGE_POSITION } from './agents'
+import { moveAgentTo } from './gemini'
+
+const BREAK_DESTINATIONS = [
+  { position: COOLER_POSITION,  bubble: '☕ Coffee time!',    duration: 8000  },
+  { position: KITCHEN_POSITION, bubble: '🍎 Snack break!',   duration: 6000  },
+  { position: LOUNGE_POSITION,  bubble: 'Taking 5 mins 🛋️', duration: 10000 },
+]
 
 let idleInterval: ReturnType<typeof setInterval> | null = null
 
@@ -20,11 +26,15 @@ export function startIdleSystem() {
     const roll = Math.random()
 
     if (roll < 0.15) {
-      // Random agent takes a coffee break
+      // Random agent takes a break at kitchen, lounge, or cooler
       const agent = activeAgents[Math.floor(Math.random() * activeAgents.length)]
       if (agent.state !== 'break') {
-        sendAgentToBreak(agent.id as AgentId)
-        store.setAgentChatBubble(agent.id as AgentId, '☕ brb', 3000)
+        const dest = BREAK_DESTINATIONS[Math.floor(Math.random() * BREAK_DESTINATIONS.length)]
+        moveAgentTo(agent.id as AgentId, dest.position)
+        store.setAgentChatBubble(agent.id as AgentId, dest.bubble, dest.duration)
+        setTimeout(() => {
+          moveAgentTo(agent.id as AgentId, DESK_POSITIONS[agent.id as AgentId])
+        }, dest.duration + 1500)
       }
     } else if (roll < 0.35) {
       // Random agent shows an idle thought bubble
