@@ -40,11 +40,11 @@ function WaterCooler() {
 
 // 5-chair conference table for all 5 agents
 const CHAIR_STYLES: React.CSSProperties[] = [
-  { top: 4,    left: '25%', transform: 'translateX(-50%)' },
-  { top: 4,    left: '75%', transform: 'translateX(-50%)' },
+  { top: 4, left: '25%', transform: 'translateX(-50%)' },
+  { top: 4, left: '75%', transform: 'translateX(-50%)' },
   { bottom: 4, left: '50%', transform: 'translateX(-50%)' },
-  { top: '50%', left: 4,   transform: 'translateY(-50%)' },
-  { top: '50%', right: 4,  transform: 'translateY(-50%)' },
+  { top: '50%', left: 4, transform: 'translateY(-50%)' },
+  { top: '50%', right: 4, transform: 'translateY(-50%)' },
 ]
 
 function ConferenceTable() {
@@ -99,12 +99,12 @@ export function OfficeMap() {
       <div className="absolute top-0 left-0 right-0 h-16 office-wall" style={{ zIndex: 1 }}>
         <div style={{ position: 'absolute', top: 8, left: '25%', width: 48, height: 32, background: 'linear-gradient(135deg, #4a8fd4 0%, #6aafff 50%, #4a8fd4 100%)', border: '3px solid #2a3a5a', boxShadow: 'inset 0 0 8px rgba(255,255,255,0.3)' }}>
           <div style={{ position: 'absolute', inset: 0, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2, padding: 2 }}>
-            {[0,1,2,3].map(i => <div key={i} style={{ background: 'rgba(100,200,255,0.3)' }} />)}
+            {[0, 1, 2, 3].map(i => <div key={i} style={{ background: 'rgba(100,200,255,0.3)' }} />)}
           </div>
         </div>
         <div style={{ position: 'absolute', top: 8, right: '25%', width: 48, height: 32, background: 'linear-gradient(135deg, #4a8fd4 0%, #6aafff 50%, #4a8fd4 100%)', border: '3px solid #2a3a5a', boxShadow: 'inset 0 0 8px rgba(255,255,255,0.3)' }}>
           <div style={{ position: 'absolute', inset: 0, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2, padding: 2 }}>
-            {[0,1,2,3].map(i => <div key={i} style={{ background: 'rgba(100,200,255,0.3)' }} />)}
+            {[0, 1, 2, 3].map(i => <div key={i} style={{ background: 'rgba(100,200,255,0.3)' }} />)}
           </div>
         </div>
         {/* Clock */}
@@ -162,8 +162,8 @@ export function OfficeMap() {
       {/* Bookshelf */}
       <div className="absolute" style={{ left: '2%', top: '75%', zIndex: 2 }}>
         <div style={{ width: 40, height: 32, background: '#4a3010', border: '2px solid #2a1a08' }}>
-          {['#cc4444','#4488cc','#44cc88','#cccc44','#cc88cc'].map((c, i) => (
-            <div key={i} style={{ position: 'absolute', bottom: 2, left: i * 7 + 2, width: 5, height: 22 + (i%3)*4, background: c }} />
+          {['#cc4444', '#4488cc', '#44cc88', '#cccc44', '#cc88cc'].map((c, i) => (
+            <div key={i} style={{ position: 'absolute', bottom: 2, left: i * 7 + 2, width: 5, height: 22 + (i % 3) * 4, background: c }} />
           ))}
         </div>
       </div>
@@ -179,8 +179,8 @@ export function OfficeMap() {
       {/* Snack bar */}
       <div className="absolute" style={{ right: '4%', bottom: '8%', zIndex: 2 }}>
         <div style={{ width: 48, height: 28, background: '#3a2a10', border: '2px solid #2a1a08' }}>
-          {['🍩','☕','🍎'].map((e, i) => (
-            <span key={i} style={{ position: 'absolute', bottom: 4, left: i*14+4, fontSize: 10 }}>{e}</span>
+          {['🍩', '☕', '🍎'].map((e, i) => (
+            <span key={i} style={{ position: 'absolute', bottom: 4, left: i * 14 + 4, fontSize: 10 }}>{e}</span>
           ))}
         </div>
       </div>
