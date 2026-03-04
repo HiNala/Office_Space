@@ -2,8 +2,9 @@
 import { useAgentStore } from '@/store/useAgentStore'
 import { AgentSprite } from './AgentSprite'
 import { Agent, AgentId } from '@/types'
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { AgentCard } from '@/components/agents/AgentCard'
+import { AGENT_COLORS } from '@/lib/agents'
 import React from 'react'
 
 // ─── MASTER COLOR PALETTE ───────────────────────────────────────────
@@ -581,32 +582,36 @@ function RoomDivider({ x, y, h }: { x: number; y: number; h: number }) {
 export function OfficeMap() {
   const { agents, isConferenceMode, screenFlash } = useAgentStore()
   const [selectedAgent, setSelectedAgent] = useState<AgentId | null>(null)
-  const outerRef = useRef<HTMLDivElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
   const [scale, setScale] = useState(1)
 
   const MAP_W = 720
   const MAP_H = 560
 
-  const recalc = useCallback(() => {
-    if (!outerRef.current) return
-    const { clientWidth: pw, clientHeight: ph } = outerRef.current
-    setScale(Math.min(pw / MAP_W, ph / MAP_H))
+  useEffect(() => {
+    const el = containerRef.current
+    if (!el) return
+    const update = () => {
+      const { width, height } = el.getBoundingClientRect()
+      if (width > 0 && height > 0) {
+        setScale(Math.min(width / MAP_W, height / MAP_H))
+      }
+    }
+    update()
+    const obs = new ResizeObserver(update)
+    obs.observe(el)
+    return () => obs.disconnect()
   }, [])
 
-  useEffect(() => {
-    recalc()
-    const ro = new ResizeObserver(recalc)
-    if (outerRef.current) ro.observe(outerRef.current)
-    return () => ro.disconnect()
-  }, [recalc])
-
   return (
-    <div ref={outerRef} className="relative w-full h-full overflow-hidden flex items-center justify-center" style={{ background: C.panelBg }}>
+    <div ref={containerRef} className="relative w-full h-full overflow-hidden" style={{ background: C.panelBg }}>
       <div style={{
-        width: MAP_W, height: MAP_H, position: 'relative',
-        transform: `scale(${scale})`, transformOrigin: 'center center',
+        width: MAP_W, height: MAP_H, position: 'absolute',
+        top: '50%', left: '50%',
+        transform: `translate(-50%, -50%) scale(${scale})`,
+        transformOrigin: 'center center',
+        overflow: 'hidden',
         imageRendering: 'pixelated' as const, fontFamily: 'monospace',
-        flexShrink: 0,
       }}>
         {screenFlash && (
           <div className="absolute inset-0 bg-white z-50 pointer-events-none"
@@ -872,7 +877,7 @@ export function OfficeMap() {
         }}>
           <span>AGENTS: 5</span>
           <span>|</span>
-          <span>GEMINI 2.5</span>
+          <span>GEMINI 2.0</span>
           <span>|</span>
           <span style={{ color: '#4aff8f' }}>●</span>
           <span>LIVE</span>

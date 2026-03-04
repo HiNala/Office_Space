@@ -82,7 +82,7 @@ export async function selectFilesForReview(
   apiKey: string
 ): Promise<{ selected: GitHubFile[]; strategy: string; focusAreas: string[] }> {
   const client = new GoogleGenerativeAI(apiKey)
-  const model = client.getGenerativeModel({ model: 'gemini-2.0-flash' })
+  const model = client.getGenerativeModel({ model: 'gemini-2.5-flash' })
 
   const fileList = files.map(f => `${f.path} (${f.size} bytes)`).join('\n')
 

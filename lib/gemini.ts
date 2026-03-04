@@ -22,10 +22,14 @@ function sleep(ms: number) {
 
 export function moveAgentTo(agentId: AgentId, position: { x: number; y: number }) {
   const store = useAgentStore.getState()
+  const clamped = {
+    x: Math.max(3, Math.min(97, position.x)),
+    y: Math.max(12, Math.min(95, position.y)),
+  }
   store.updateAgent(agentId, {
-    position,
+    position: clamped,
     state: 'walking',
-    direction: position.x > store.agents[agentId].position.x ? 'right' : 'left',
+    direction: clamped.x > store.agents[agentId].position.x ? 'right' : 'left',
   })
   setTimeout(() => {
     useAgentStore.getState().setAgentState(agentId, 'idle')
@@ -98,7 +102,7 @@ export async function callAgent(
 
   try {
     const modelConfig: Record<string, unknown> = {
-      model: 'gemini-2.0-flash',
+      model: 'gemini-2.5-flash',
       systemInstruction: agent.systemPrompt,
     }
 

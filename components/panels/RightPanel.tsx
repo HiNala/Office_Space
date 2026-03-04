@@ -3,6 +3,7 @@ import { useAgentStore } from '@/store/useAgentStore'
 import { FeedItem } from '@/types'
 import { FileText, X, Download } from 'lucide-react'
 import { useEffect, useRef } from 'react'
+import { MissionInput } from '@/components/controls/MissionInput'
 
 const AGENT_COLORS: Record<string, string> = {
   rex: '#4a8fff',
@@ -214,7 +215,7 @@ export function RightPanel() {
             }}
           />
           <span style={{ fontFamily: 'var(--font-pixel)', fontSize: '6px', color: '#4a8fd4' }}>
-            GEMINI 2.0
+            GEMINI 2.5
           </span>
         </div>
       </div>
@@ -240,6 +241,9 @@ export function RightPanel() {
           )}
         </div>
       )}
+
+      {/* Mission input at the bottom of the panel */}
+      <MissionInput />
     </div>
   )
 }
