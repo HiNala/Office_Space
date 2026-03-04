@@ -14,7 +14,7 @@ export function GithubInput() {
     setGithubUrl(url)
     setInput('')
     setIsRunning(true)
-    await runGithubReview(url, geminiApiKey)
+    await runGithubReview(url, 'Full code review — architecture, security, and UX', geminiApiKey)
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {

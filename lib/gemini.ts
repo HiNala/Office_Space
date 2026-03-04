@@ -310,7 +310,7 @@ Use ## for section headers. Be thorough, specific, and actionable. This is a del
   store.setIsRunning(false)
 }
 
-export async function runGithubReview(repoUrl: string, apiKey: string): Promise<void> {
+export async function runGithubReview(repoUrl: string, reviewType: string, apiKey: string): Promise<void> {
   const store = useAgentStore.getState()
 
   if (!apiKey) {
@@ -334,46 +334,69 @@ export async function runGithubReview(repoUrl: string, apiKey: string): Promise<
 
   await sleep(1500)
 
-  // Fetch GitHub repo info
+  // Fetch GitHub repo info using github.ts helpers for deeper analysis
   let repoInfo = ''
+  let codeContext = ''
   try {
-    const repoPath = repoUrl.replace('https://github.com/', '').replace(/\/$/, '')
-    const [owner, repo] = repoPath.split('/')
+    const { fetchRepoTree, fetchKeyFiles } = await import('./github')
 
-    store.addFeedItem({ agentId: 'nova', type: 'search', message: `🔍 Fetching repo: ${owner}/${repo}` })
+    store.addFeedItem({ agentId: 'nova', type: 'search', message: `🔍 Scanning repository structure...` })
 
-    const [repoRes, readmeRes, languagesRes] = await Promise.all([
-      fetch(`https://api.github.com/repos/${owner}/${repo}`),
-      fetch(`https://api.github.com/repos/${owner}/${repo}/readme`),
-      fetch(`https://api.github.com/repos/${owner}/${repo}/languages`),
-    ])
+    const fileTree = await fetchRepoTree(repoUrl)
 
-    if (repoRes.ok) {
-      const repoData = await repoRes.json()
-      repoInfo += `Repository: ${repoData.full_name}\n`
-      repoInfo += `Description: ${repoData.description || 'No description'}\n`
-      repoInfo += `Stars: ${repoData.stargazers_count} | Forks: ${repoData.forks_count}\n`
-      repoInfo += `Primary language: ${repoData.language}\n`
-      repoInfo += `Open issues: ${repoData.open_issues_count}\n`
-      repoInfo += `Last updated: ${repoData.updated_at}\n`
-    }
+    store.addFeedItem({ agentId: 'nova', type: 'result', message: `Found ${fileTree.length} code files. Fetching key files...` })
 
-    if (languagesRes.ok) {
-      const langs = await languagesRes.json()
-      repoInfo += `Languages: ${Object.keys(langs).join(', ')}\n`
-    }
+    const fileContents = await fetchKeyFiles(fileTree)
 
-    if (readmeRes.ok) {
-      const readmeData = await readmeRes.json()
-      const readmeText = atob(readmeData.content.replace(/\n/g, ''))
-      repoInfo += `\nREADME (excerpt):\n${readmeText.slice(0, 2000)}`
-    }
+    store.addFeedItem({ agentId: 'nova', type: 'result', message: `Loaded ${Object.keys(fileContents).length} files for analysis.` })
 
-    store.addFeedItem({ agentId: 'nova', type: 'result', message: `✅ Repo data fetched successfully` })
+    repoInfo = `Repository: ${repoUrl}\nFile count: ${fileTree.length}\nKey files analyzed: ${Object.keys(fileContents).length}\nFile structure:\n${fileTree.map(f => f.path).join('\n')}`
+    codeContext = Object.entries(fileContents)
+      .map(([path, content]) => `=== ${path} ===\n${content}`)
+      .join('\n\n')
   } catch (err) {
-    store.addFeedItem({ agentId: 'nova', type: 'error', message: `GitHub fetch failed — analyzing URL only` })
-    repoInfo = `Repository URL: ${repoUrl}`
+    // Fallback to basic GitHub API
+    try {
+      const repoPath = repoUrl.replace('https://github.com/', '').replace(/\/$/, '')
+      const [owner, repo] = repoPath.split('/')
+
+      store.addFeedItem({ agentId: 'nova', type: 'search', message: `🔍 Fetching repo metadata: ${owner}/${repo}` })
+
+      const [repoRes, readmeRes, languagesRes] = await Promise.all([
+        fetch(`https://api.github.com/repos/${owner}/${repo}`),
+        fetch(`https://api.github.com/repos/${owner}/${repo}/readme`),
+        fetch(`https://api.github.com/repos/${owner}/${repo}/languages`),
+      ])
+
+      if (repoRes.ok) {
+        const repoData = await repoRes.json()
+        repoInfo += `Repository: ${repoData.full_name}\n`
+        repoInfo += `Description: ${repoData.description || 'No description'}\n`
+        repoInfo += `Stars: ${repoData.stargazers_count} | Forks: ${repoData.forks_count}\n`
+        repoInfo += `Primary language: ${repoData.language}\n`
+        repoInfo += `Open issues: ${repoData.open_issues_count}\n`
+        repoInfo += `Last updated: ${repoData.updated_at}\n`
+      }
+
+      if (languagesRes.ok) {
+        const langs = await languagesRes.json()
+        repoInfo += `Languages: ${Object.keys(langs).join(', ')}\n`
+      }
+
+      if (readmeRes.ok) {
+        const readmeData = await readmeRes.json()
+        const readmeText = atob(readmeData.content.replace(/\n/g, ''))
+        repoInfo += `\nREADME (excerpt):\n${readmeText.slice(0, 2000)}`
+      }
+
+      store.addFeedItem({ agentId: 'nova', type: 'result', message: `✅ Repo data fetched successfully` })
+    } catch {
+      store.addFeedItem({ agentId: 'nova', type: 'error', message: `GitHub fetch failed — analyzing URL only` })
+      repoInfo = `Repository URL: ${repoUrl}`
+    }
   }
+
+  const fullContext = repoInfo + (codeContext ? '\n\nKEY FILE CONTENTS:\n' + codeContext : '')
 
   // Each agent reviews from their perspective
   const responses: Partial<Record<AgentId, string>> = {}
@@ -396,9 +419,10 @@ export async function runGithubReview(repoUrl: string, apiKey: string): Promise<
       const prompt = `${agentDef.systemPrompt}
 
 You are reviewing a GitHub repository for the team.
+Review type: ${reviewType}
 
 REPOSITORY INFO:
-${repoInfo}
+${fullContext.slice(0, 12000)}
 
 YOUR FOCUS: ${reviewPrompts[agentId] || 'General review'}
 
@@ -429,6 +453,7 @@ Provide your expert review in 4-6 sentences. Start with "${agentDef.name}:". Be 
     const reportPrompt = `Generate a comprehensive GitHub repository review report.
 
 REPOSITORY: ${repoUrl}
+REVIEW FOCUS: ${reviewType}
 REPO INFO: ${repoInfo.slice(0, 500)}
 
 TEAM REVIEWS:
@@ -451,7 +476,7 @@ Be specific, actionable, and reference real details from the repo.`
     for await (const chunk of reportResult.stream) reportContent += chunk.text()
 
     store.addReport({
-      title: `GitHub Review: ${repoUrl.split('/').slice(-2).join('/')}`,
+      title: `GitHub Review: ${repoUrl.split('/').slice(-2).join('/')} — ${reviewType}`,
       content: reportContent,
       agentIds: activeAgents,
       type: 'github_review',

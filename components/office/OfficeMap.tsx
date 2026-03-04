@@ -85,6 +85,25 @@ export function OfficeMap() {
 
       <div className="scanline-overlay" />
 
+      {/* CRT vignette */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          zIndex: 9998,
+          background: 'radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.4) 100%)',
+        }}
+      />
+
+      {/* Pixel grid overlay (subtle) */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          zIndex: 9997,
+          backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.03) 3px, rgba(0,0,0,0.03) 4px)',
+          backgroundSize: '4px 4px',
+        }}
+      />
+
       <div className="absolute top-0 left-0 right-0 h-16 office-wall" style={{ zIndex: 1 }}>
         <div style={{ position: 'absolute', top: 8, left: '25%', width: 48, height: 32, background: 'linear-gradient(135deg, #4a8fd4 0%, #6aafff 50%, #4a8fd4 100%)', border: '3px solid #2a3a5a', boxShadow: 'inset 0 0 8px rgba(255,255,255,0.3)' }}>
           <div style={{ position: 'absolute', inset: 0, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2, padding: 2 }}>
@@ -188,6 +207,26 @@ export function OfficeMap() {
 
       <div className="absolute bottom-2 left-2 z-10" style={{ fontSize: '7px', fontFamily: 'var(--font-pixel)', color: 'rgba(255,255,255,0.2)' }}>
         OFFICE SPACE v1.0
+      </div>
+
+      {/* Status bar */}
+      <div
+        className="absolute bottom-2 right-2 z-10 flex items-center gap-3"
+        style={{
+          background: 'rgba(0,0,0,0.7)',
+          border: '1px solid #2a2a4a',
+          padding: '4px 8px',
+          fontFamily: 'var(--font-terminal)',
+          fontSize: '11px',
+          color: '#666688',
+        }}
+      >
+        <span>AGENTS: 5</span>
+        <span>|</span>
+        <span>GEMINI 3.1</span>
+        <span>|</span>
+        <span style={{ color: '#4aff8f' }}>●</span>
+        <span>LIVE</span>
       </div>
     </div>
   )
