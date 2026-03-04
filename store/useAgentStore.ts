@@ -53,7 +53,7 @@ interface AgentStore {
 }
 
 export const useAgentStore = create<AgentStore>((set, get) => ({
-  geminiApiKey: '',
+  geminiApiKey: process.env.NEXT_PUBLIC_GEMINI_API_KEY || '',
   setGeminiApiKey: (key) => set({ geminiApiKey: key }),
 
   agents: {

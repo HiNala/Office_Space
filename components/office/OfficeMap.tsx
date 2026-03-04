@@ -2,8 +2,9 @@
 import { useAgentStore } from '@/store/useAgentStore'
 import { AgentSprite } from './AgentSprite'
 import { Agent, AgentId } from '@/types'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { AgentCard } from '@/components/agents/AgentCard'
+import { startIdleMovement, startIdleChatBubbles } from '@/lib/orchestrator'
 
 function PixelDesk({ color, label }: { color: string; label: string }) {
   return (
@@ -59,6 +60,15 @@ function ConferenceTable() {
 export function OfficeMap() {
   const { agents, isConferenceMode, screenFlash } = useAgentStore()
   const [selectedAgent, setSelectedAgent] = useState<AgentId | null>(null)
+
+  useEffect(() => {
+    const stopMovement = startIdleMovement()
+    const stopBubbles = startIdleChatBubbles()
+    return () => {
+      stopMovement()
+      stopBubbles()
+    }
+  }, [])
 
   const agentColors: Record<AgentId, string> = {
     rex: '#4a8fff', nova: '#b44aff', sage: '#4aff8f', byte: '#ff4a4a', flora: '#ff8fcc'

@@ -6,7 +6,9 @@ import { Eye, EyeOff } from 'lucide-react'
 export function TopBar() {
   const { geminiApiKey, setGeminiApiKey } = useAgentStore()
   const [showKey, setShowKey] = useState(false)
-  const [localKey, setLocalKey] = useState(geminiApiKey)
+  const [localKey, setLocalKey] = useState(() =>
+    process.env.NEXT_PUBLIC_GEMINI_API_KEY || geminiApiKey
+  )
 
   return (
     <div className="flex items-center gap-3 px-4 py-2" style={{
