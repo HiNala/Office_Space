@@ -127,7 +127,7 @@ export const useAgentStore = create<AgentStore>((set, get) => ({
       const newItem: FeedItem = {
         id: item.id || Math.random().toString(36).slice(2),
         timestamp: new Date(),
-        isExpanded: false,
+        isExpanded: true,
         isStreaming: false,
         ...item,
       } as FeedItem

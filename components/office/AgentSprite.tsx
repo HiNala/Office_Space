@@ -45,6 +45,20 @@ const AGENT_VISUALS: Record<AgentId, AgentVisuals> = {
   },
 }
 
+const AGENT_ROLES: Record<AgentId, string> = {
+  rex: 'ARCHITECT', nova: 'RESEARCH', sage: 'CODE/UX',
+  byte: 'SECURITY', flora: 'PRODUCT',
+}
+
+const STATE_LABELS: Record<string, { icon: string; color: string }> = {
+  working: { icon: '⌨️', color: '#4aff8f' },
+  thinking: { icon: '💭', color: '#ffd700' },
+  walking: { icon: '🚶', color: '#88aaff' },
+  chatting: { icon: '💬', color: '#ff8fcc' },
+  break: { icon: '☕', color: '#cc9944' },
+  conference: { icon: '📋', color: '#ffd700' },
+}
+
 interface AgentSpriteProps {
   agent: Agent
   onClick?: () => void
@@ -200,6 +214,15 @@ export function AgentSprite({ agent, onClick }: AgentSpriteProps) {
           left: 15, width: 18, height: 6, background: v.skin,
         }} />
 
+        {/* === REX TIE === */}
+        {agent.id === 'rex' && (
+          <div style={{ position: 'absolute', top: 42, left: 21, width: 6, height: 18, zIndex: 2 }}>
+            <div style={{ width: 6, height: 6, background: '#ff4444' }} />
+            <div style={{ width: 6, height: 6, background: '#cc2222' }} />
+            <div style={{ width: 8, height: 6, marginLeft: -1, background: '#ff4444', clipPath: 'polygon(50% 100%, 0 0, 100% 0)' }} />
+          </div>
+        )}
+
         {/* === TORSO === */}
         <div style={{
           position: 'absolute', top: 42, left: 6, width: 36, height: 30,
@@ -220,6 +243,18 @@ export function AgentSprite({ agent, onClick }: AgentSpriteProps) {
             <div style={{ position: 'absolute', top: 18, left: 16, width: 3, height: 3, background: '#aa2868' }} />
             <div style={{ position: 'absolute', top: 24, left: 16, width: 3, height: 3, background: '#aa2868' }} />
           </>)}
+          {/* BYTE hoodie strings */}
+          {agent.id === 'byte' && (<>
+            <div style={{ position: 'absolute', top: 0, left: 12, width: 2, height: 12, background: '#333' }} />
+            <div style={{ position: 'absolute', top: 0, right: 12, width: 2, height: 12, background: '#333' }} />
+            <div style={{ position: 'absolute', top: 0, left: 6, right: 6, height: 9, background: '#222', borderRadius: '0 0 6px 6px' }} />
+          </>)}
+          {/* SAGE pocket protector + pen */}
+          {agent.id === 'sage' && (<>
+            <div style={{ position: 'absolute', top: 3, right: 6, width: 10, height: 14, background: '#2a4a1a', border: '1px solid #4aff8f44' }} />
+            <div style={{ position: 'absolute', top: 1, right: 9, width: 2, height: 8, background: '#4aff8f', opacity: 0.7 }} />
+            <div style={{ position: 'absolute', top: 2, right: 12, width: 2, height: 7, background: '#ff4444', opacity: 0.6 }} />
+          </>)}
 
           {/* Superpower aura */}
           {agent.superPowerActive && (
@@ -235,9 +270,25 @@ export function AgentSprite({ agent, onClick }: AgentSpriteProps) {
         {/* === ARMS === */}
         <div style={{ position: 'absolute', top: 42, left: 0, width: 9, height: 27, background: v.outfit, boxShadow: 'inset -2px -2px 0 rgba(0,0,0,0.2)' }} />
         <div style={{ position: 'absolute', top: 42, right: 0, width: 9, height: 27, background: v.outfit, boxShadow: 'inset -2px -2px 0 rgba(0,0,0,0.2)' }} />
-        {/* Hands (skin) */}
-        <div style={{ position: 'absolute', top: 66, left: 0, width: 9, height: 6, background: v.skin }} />
-        <div style={{ position: 'absolute', top: 66, right: 0, width: 9, height: 6, background: v.skin }} />
+        {/* Hands (skin) — when working, hands are forward (typing) */}
+        {agent.state === 'working' ? (<>
+          <div style={{ position: 'absolute', top: 62, left: 6, width: 9, height: 6, background: v.skin, animation: 'typing-bob 0.3s ease-in-out infinite' }} />
+          <div style={{ position: 'absolute', top: 62, right: 6, width: 9, height: 6, background: v.skin, animation: 'typing-bob 0.3s 0.15s ease-in-out infinite' }} />
+        </>) : (<>
+          <div style={{ position: 'absolute', top: 66, left: 0, width: 9, height: 6, background: v.skin }} />
+          <div style={{ position: 'absolute', top: 66, right: 0, width: 9, height: 6, background: v.skin }} />
+        </>)}
+
+        {/* === FLORA HAIR FLOWER === */}
+        {agent.id === 'flora' && (
+          <div style={{ position: 'absolute', top: 2, right: 3, width: 10, height: 10, zIndex: 3 }}>
+            <div style={{ position: 'absolute', top: 2, left: 2, width: 6, height: 6, background: '#ff6699', borderRadius: '50%' }} />
+            <div style={{ position: 'absolute', top: 0, left: 3, width: 4, height: 4, background: '#ff88bb', borderRadius: '50%' }} />
+            <div style={{ position: 'absolute', top: 4, left: 0, width: 4, height: 4, background: '#ff88bb', borderRadius: '50%' }} />
+            <div style={{ position: 'absolute', top: 4, right: 0, width: 4, height: 4, background: '#ff88bb', borderRadius: '50%' }} />
+            <div style={{ position: 'absolute', top: 3, left: 3, width: 4, height: 4, background: '#ffcc00', borderRadius: '50%' }} />
+          </div>
+        )}
 
         {/* === LEGS === */}
         <div style={{ position: 'absolute', bottom: 9, left: 6, width: 15, height: 21, background: '#2a1a4a' }} />
@@ -251,18 +302,32 @@ export function AgentSprite({ agent, onClick }: AgentSpriteProps) {
         <div style={{ position: 'absolute', bottom: -3, left: 3, right: 3, height: 6, background: 'rgba(0,0,0,0.25)', borderRadius: '50%' }} />
       </div>
 
-      {/* Hover name tag */}
+      {/* State indicator dot */}
+      {agent.state !== 'idle' && STATE_LABELS[agent.state] && (
+        <div style={{
+          position: 'absolute', top: -2, right: -2,
+          fontSize: '8px', lineHeight: 1,
+          zIndex: 30,
+        }}>
+          {STATE_LABELS[agent.state].icon}
+        </div>
+      )}
+
+      {/* Hover name tag + role */}
       <div
         className="opacity-0 group-hover:opacity-100 transition-opacity duration-150"
         style={{
-          textAlign: 'center', marginTop: 4, padding: '2px 6px',
-          background: 'rgba(0,0,0,0.85)', border: `1px solid ${v.accent}`,
+          textAlign: 'center', marginTop: 4, padding: '3px 8px',
+          background: 'rgba(0,0,0,0.9)', border: `1px solid ${v.accent}`,
           fontFamily: 'var(--font-pixel)', fontSize: '8px',
           color: v.accent, whiteSpace: 'nowrap',
           transform: 'translateY(-2px)',
         }}
       >
         {agent.name}
+        <div style={{ fontSize: '6px', color: `${v.accent}88`, marginTop: 1 }}>
+          {AGENT_ROLES[agent.id as AgentId]}
+        </div>
       </div>
 
       {/* Click ripple effect */}
